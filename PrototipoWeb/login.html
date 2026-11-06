@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Acceso al sistema Nexo."
+    />
+    <meta name="theme-color" content="#123d32" />
+    <title>Iniciar sesión | Nexo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        --pine-950: #123d32;
+        --pine-800: #1d5a48;
+        --pine-700: #28735a;
+        --green-100: #e7f2eb;
+        --green-50: #f3f8f4;
+        --ink: #1d2b24;
+        --muted: #718078;
+        --border: #dce7df;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: 32px 20px;
+        color: var(--ink);
+        background:
+          radial-gradient(ellipse at 12% 10%, #e4f0e7 0, transparent 38%),
+          radial-gradient(ellipse at 92% 88%, #e8f2eb 0, transparent 34%),
+          #f6f9f6;
+      }
+
+      .login-card {
+        width: min(100%, 456px);
+        padding: 48px;
+        border: 1px solid rgb(220 231 223 / 80%);
+        border-radius: 24px;
+        background: #fff;
+        box-shadow:
+          0 24px 70px rgb(25 66 48 / 10%),
+          0 4px 12px rgb(25 66 48 / 4%);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 36px;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 54px;
+        height: 54px;
+        flex: 0 0 54px;
+        place-items: center;
+        border-radius: 17px;
+        color: #fff;
+        background: var(--pine-950);
+        box-shadow: 0 8px 18px rgb(18 61 50 / 18%);
+      }
+
+      .brand-mark svg {
+        width: 34px;
+        height: 34px;
+      }
+
+      .brand-name {
+        margin: 0;
+        color: var(--pine-950);
+        font-size: 30px;
+        font-weight: 750;
+        letter-spacing: -1.2px;
+        line-height: 1;
+      }
+
+      .brand-caption {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 1.35px;
+        text-transform: uppercase;
+      }
+
+      .intro {
+        margin-bottom: 30px;
+      }
+
+      .intro h2 {
+        margin: 0;
+        color: var(--ink);
+        font-size: 25px;
+        font-weight: 650;
+        letter-spacing: -0.5px;
+      }
+
+      .intro p {
+        margin: 9px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .field {
+        margin-bottom: 20px;
+      }
+
+      .field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #34443b;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .input-wrap {
+        position: relative;
+      }
+
+      .input-wrap svg {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        width: 20px;
+        height: 20px;
+        color: #82948a;
+        pointer-events: none;
+        transform: translateY(-50%);
+      }
+
+      .input-wrap input {
+        width: 100%;
+        height: 50px;
+        padding: 0 15px 0 46px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        outline: none;
+        color: var(--ink);
+        background: #fff;
+        font: inherit;
+        font-size: 14px;
+        transition:
+          border-color 160ms ease,
+          box-shadow 160ms ease,
+          background-color 160ms ease;
+      }
+
+      .input-wrap input::placeholder {
+        color: #a2afa8;
+      }
+
+      .input-wrap input:hover {
+        border-color: #b6cbbd;
+      }
+
+      .input-wrap input:focus-visible {
+        border-color: var(--pine-700);
+        background: #fcfefc;
+        box-shadow: 0 0 0 3px rgb(40 115 90 / 14%);
+      }
+
+      .form-options {
+        display: flex;
+        justify-content: flex-end;
+        margin: -2px 0 24px;
+      }
+
+      .text-link {
+        color: var(--pine-700);
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .text-link:hover {
+        color: var(--pine-950);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      .submit-button {
+        display: flex;
+        width: 100%;
+        min-height: 50px;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: 0;
+        border-radius: 10px;
+        color: #fff;
+        background: var(--pine-800);
+        box-shadow: 0 5px 12px rgb(29 90 72 / 16%);
+        cursor: pointer;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 650;
+        transition:
+          background-color 160ms ease,
+          box-shadow 160ms ease,
+          transform 160ms ease;
+      }
+
+      .submit-button:hover {
+        background: var(--pine-950);
+        box-shadow: 0 8px 18px rgb(18 61 50 / 20%);
+        transform: translateY(-1px);
+      }
+
+      .submit-button:focus-visible,
+      .text-link:focus-visible {
+        outline: 3px solid #8bb9a0;
+        outline-offset: 3px;
+      }
+
+      .submit-button svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .secure-note {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        margin: 25px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .secure-note svg {
+        width: 15px;
+        height: 15px;
+        color: var(--pine-700);
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 20px 16px;
+        }
+
+        .login-card {
+          padding: 34px 26px;
+          border-radius: 20px;
+        }
+
+        .brand {
+          margin-bottom: 32px;
+        }
+
+        .intro h2 {
+          font-size: 23px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="login-card" aria-labelledby="login-title">
+      <header class="brand">
+        <div class="brand-mark" role="img" aria-label="Logo de Nexo">
+          <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path
+              d="M16 3 6.5 15h5L5 23h8v6h6v-6h8l-6.5-8h5L16 3Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-name">Nexo</h1>
+          <p class="brand-caption">Gestión inteligente</p>
+        </div>
+      </header>
+
+      <section class="intro">
+        <h2 id="login-title">Bienvenido de nuevo</h2>
+        <p>Ingresa tus credenciales para acceder a tu cuenta.</p>
+      </section>
+
+      <form id="login-form" action="#" method="post">
+        <div class="field">
+          <label for="username">Usuario</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z"
+              />
+            </svg>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              placeholder="Escribe tu usuario"
+              autocomplete="username"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Contraseña</label>
+          <div class="input-wrap">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M18 8h-1V6a5 5 0 0 0-10 0v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2ZM9 6a3 3 0 0 1 6 0v2H9V6Zm3 11a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"
+              />
+            </svg>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Escribe tu contraseña"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-options">
+          <a class="text-link" href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button class="submit-button" type="submit">
+          Iniciar sesión
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 4 10.59 5.41 16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8Z" />
+          </svg>
+        </button>
+      </form>
+
+      <p class="secure-note">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path
+            d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4Zm-1 16-4-4 1.41-1.41L11 14.17l4.59-4.58L17 11l-6 6Z"
+          />
+        </svg>
+        Acceso protegido
+      </p>
+    </main>
+    <script>
+      document
+        .querySelector("#login-form")
+        .addEventListener("submit", (event) => {
+          event.preventDefault();
+          window.location.assign("dashboard.html");
+        });
+    </script>
+  </body>
+</html>
