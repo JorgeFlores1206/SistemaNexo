@@ -1,0 +1,1212 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Perfil y ajustes de cuenta de Nexo." />
+    <meta name="theme-color" content="#123d32" />
+    <title>Mi perfil | Nexo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        --pine-950: #123d32;
+        --pine-900: #174a3b;
+        --pine-800: #1d5a48;
+        --pine-700: #28735a;
+        --green-100: #e7f2eb;
+        --ink: #1d2b24;
+        --muted: #718078;
+        --border: #e5ece7;
+        --canvas: #f6f8f6;
+        --sidebar-width: 258px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        background: var(--canvas);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      button,
+      a,
+      summary {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .app-shell {
+        min-height: 100vh;
+      }
+
+      .menu-toggle,
+      .menu-backdrop {
+        display: none;
+      }
+
+      .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 5;
+        display: flex;
+        width: var(--sidebar-width);
+        flex-direction: column;
+        padding: 27px 18px 20px;
+        color: #e8f2ec;
+        background:
+          radial-gradient(ellipse at 0% 0%, rgb(91 145 111 / 20%), transparent 42%),
+          var(--pine-950);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 11px;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        place-items: center;
+        border: 1px solid rgb(255 255 255 / 14%);
+        border-radius: 13px;
+        color: #fff;
+        background: rgb(255 255 255 / 10%);
+      }
+
+      .brand-mark svg {
+        width: 29px;
+        height: 29px;
+      }
+
+      .brand-name {
+        margin: 0;
+        color: #fff;
+        font-size: 25px;
+        font-weight: 750;
+        letter-spacing: -1px;
+        line-height: 1;
+      }
+
+      .brand-caption {
+        display: block;
+        margin-top: 5px;
+        color: #b6cfc0;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 1.15px;
+        text-transform: uppercase;
+      }
+
+      .side-label {
+        margin: 38px 12px 12px;
+        color: #98b6a4;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.3px;
+        text-transform: uppercase;
+      }
+
+      .side-nav {
+        display: grid;
+        gap: 5px;
+      }
+
+      .nav-link,
+      .nav-group summary {
+        display: flex;
+        min-height: 44px;
+        align-items: center;
+        gap: 12px;
+        padding: 0 12px;
+        border-radius: 9px;
+        color: #c8d9ce;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        list-style: none;
+        transition:
+          color 150ms ease,
+          background-color 150ms ease;
+      }
+
+      .nav-group summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .nav-link:hover,
+      .nav-group summary:hover {
+        color: #fff;
+        background: rgb(255 255 255 / 8%);
+      }
+
+      .nav-link.active {
+        color: #fff;
+        background: #28664f;
+        box-shadow: inset 3px 0 #a6d2b4;
+      }
+
+      .nav-icon {
+        width: 19px;
+        height: 19px;
+        flex: 0 0 19px;
+        color: #a7c4b1;
+      }
+
+      .nav-link.active .nav-icon {
+        color: #d3ead9;
+      }
+
+      .chevron {
+        width: 16px;
+        height: 16px;
+        margin-left: auto;
+        color: #93af9e;
+        transition: transform 150ms ease;
+      }
+
+      .nav-group[open] .chevron {
+        transform: rotate(180deg);
+      }
+
+      .subnav {
+        display: grid;
+        gap: 2px;
+        margin: 3px 0 5px 39px;
+        padding-left: 12px;
+        border-left: 1px solid rgb(196 220 202 / 22%);
+      }
+
+      .subnav a {
+        padding: 9px 7px;
+        border-radius: 6px;
+        color: #b5cbbd;
+        font-size: 12px;
+        line-height: 1.3;
+        transition:
+          color 150ms ease,
+          background-color 150ms ease;
+      }
+
+      .subnav a:hover,
+      .subnav a:focus-visible {
+        color: #fff;
+        background: rgb(255 255 255 / 8%);
+      }
+
+      .profile-link {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-top: auto;
+        padding: 16px 9px 0;
+        border-top: 1px solid rgb(255 255 255 / 12%);
+      }
+
+      .avatar {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        place-items: center;
+        overflow: hidden;
+        border: 2px solid rgb(255 255 255 / 25%);
+        border-radius: 50%;
+        color: var(--pine-950);
+        background: #d7e8dc;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .profile-meta {
+        min-width: 0;
+      }
+
+      .profile-name {
+        display: block;
+        overflow: hidden;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .profile-role {
+        display: block;
+        margin-top: 4px;
+        color: #a9c2b2;
+        font-size: 10px;
+      }
+
+      .main-area {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        margin-left: var(--sidebar-width);
+      }
+
+      .topbar {
+        display: flex;
+        min-height: 82px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 16px clamp(24px, 4vw, 58px);
+        border-bottom: 1px solid var(--border);
+        background: rgb(255 255 255 / 88%);
+      }
+
+      .breadcrumb {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .breadcrumb strong {
+        color: var(--pine-800);
+        font-weight: 650;
+      }
+
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .today {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .topbar-avatar {
+        width: 36px;
+        height: 36px;
+        overflow: hidden;
+        border: 2px solid #e0ebe3;
+        border-radius: 50%;
+        background: #d7e8dc;
+      }
+
+      .topbar-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .content {
+        width: min(100%, 1120px);
+        flex: 1;
+        margin: 0 auto;
+        padding: 35px clamp(24px, 4vw, 58px) 42px;
+      }
+
+      .page-heading {
+        margin-bottom: 25px;
+      }
+
+      .eyebrow {
+        margin: 0 0 7px;
+        color: var(--pine-700);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
+      }
+
+      .page-heading h1 {
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(24px, 3vw, 30px);
+        font-weight: 700;
+        letter-spacing: -0.8px;
+      }
+
+      .page-subtitle {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .profile-card,
+      .info-card,
+      .settings-card {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 4px 13px rgb(22 57 39 / 3%);
+      }
+
+      .profile-card {
+        display: flex;
+        min-height: 260px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 27px 20px;
+        text-align: center;
+        background:
+          radial-gradient(ellipse at 50% 0, rgb(231 242 235 / 85%), transparent 65%),
+          #fff;
+      }
+
+      .profile-photo-wrap {
+        position: relative;
+        width: 104px;
+        height: 104px;
+        margin-bottom: 15px;
+      }
+
+      .profile-photo {
+        width: 100%;
+        height: 100%;
+        border: 4px solid #fff;
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 0 0 1px var(--border), 0 7px 18px rgb(18 61 50 / 12%);
+      }
+
+      .online-indicator {
+        position: absolute;
+        right: 4px;
+        bottom: 6px;
+        width: 15px;
+        height: 15px;
+        border: 3px solid #fff;
+        border-radius: 50%;
+        background: #4a9b70;
+      }
+
+      .profile-card h2 {
+        margin: 0;
+        color: var(--pine-950);
+        font-size: 21px;
+        font-weight: 700;
+        letter-spacing: -0.4px;
+      }
+
+      .profile-handle {
+        margin: 5px 0 11px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        color: var(--pine-800);
+        background: var(--green-100);
+        font-size: 10px;
+        font-weight: 650;
+      }
+
+      .role-badge svg {
+        width: 13px;
+        height: 13px;
+      }
+
+      .section-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 14px;
+        margin: 28px 0 14px;
+      }
+
+      .section-heading h2 {
+        margin: 0;
+        color: var(--ink);
+        font-size: 16px;
+        font-weight: 650;
+        letter-spacing: -0.2px;
+      }
+
+      .section-heading p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
+      .prototype-note {
+        margin: -4px 0 13px;
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .info-card {
+        padding: 4px 22px;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 30px;
+      }
+
+      .info-item {
+        display: flex;
+        min-width: 0;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 17px 0;
+        border-bottom: 1px solid #edf1ed;
+      }
+
+      .info-item:nth-last-child(-n + 2) {
+        border-bottom: 0;
+      }
+
+      .info-icon {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        place-items: center;
+        border-radius: 9px;
+        color: var(--pine-700);
+        background: var(--green-100);
+      }
+
+      .info-icon svg {
+        width: 17px;
+        height: 17px;
+      }
+
+      .info-copy {
+        min-width: 0;
+      }
+
+      .info-label {
+        display: block;
+        margin: 1px 0 5px;
+        color: #89968e;
+        font-size: 10px;
+        font-weight: 600;
+      }
+
+      .info-value {
+        display: block;
+        overflow-wrap: anywhere;
+        color: #34443b;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 15px;
+      }
+
+      .settings-card {
+        min-width: 0;
+        padding: 19px;
+      }
+
+      .settings-card.password-card {
+        grid-column: 1 / -1;
+      }
+
+      .settings-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      .settings-title h3 {
+        margin: 0;
+        color: #34443b;
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .settings-title p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.5;
+      }
+
+      .settings-title .info-icon {
+        width: 32px;
+        height: 32px;
+        flex-basis: 32px;
+      }
+
+      .settings-card form {
+        display: grid;
+        gap: 12px;
+      }
+
+      .password-fields {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .field label {
+        display: block;
+        margin-bottom: 7px;
+        color: #53645a;
+        font-size: 10px;
+        font-weight: 600;
+      }
+
+      .field input {
+        width: 100%;
+        height: 40px;
+        padding: 0 11px;
+        border: 1px solid #dce7df;
+        border-radius: 8px;
+        outline: none;
+        color: var(--ink);
+        background: #fff;
+        font: inherit;
+        font-size: 11px;
+        transition:
+          border-color 150ms ease,
+          box-shadow 150ms ease;
+      }
+
+      .field input::placeholder {
+        color: #a2afa8;
+      }
+
+      .field input:focus-visible {
+        border-color: var(--pine-700);
+        box-shadow: 0 0 0 3px rgb(40 115 90 / 14%);
+      }
+
+      .form-action {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 2px;
+      }
+
+      .action-button {
+        display: inline-flex;
+        min-height: 37px;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 0 12px;
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        background: var(--pine-800);
+        cursor: pointer;
+        font: inherit;
+        font-size: 10px;
+        font-weight: 650;
+        transition:
+          background-color 150ms ease,
+          transform 150ms ease;
+      }
+
+      .action-button:hover {
+        background: var(--pine-950);
+        transform: translateY(-1px);
+      }
+
+      .action-button svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      .footer {
+        display: flex;
+        min-height: 55px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px clamp(24px, 4vw, 58px);
+        border-top: 1px solid var(--border);
+        color: #87948c;
+        background: #fff;
+        font-size: 10px;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 17px;
+      }
+
+      .footer a:hover {
+        color: var(--pine-700);
+      }
+
+      :focus-visible {
+        outline: 3px solid #8bb9a0;
+        outline-offset: 3px;
+      }
+
+      @media (max-width: 1050px) {
+        :root {
+          --sidebar-width: 228px;
+        }
+
+        .content,
+        .topbar,
+        .footer {
+          padding-right: 28px;
+          padding-left: 28px;
+        }
+      }
+
+      @media (max-width: 760px) {
+        :root {
+          --sidebar-width: 0px;
+        }
+
+        body.menu-open {
+          overflow: hidden;
+        }
+
+        .sidebar {
+          position: fixed;
+          inset: 0 auto 0 0;
+          z-index: 20;
+          width: min(84vw, 310px);
+          min-height: 100vh;
+          min-height: 100dvh;
+          overflow-y: auto;
+          padding: 24px 18px 20px;
+          box-shadow: 16px 0 40px rgb(9 37 26 / 20%);
+          transform: translateX(-105%);
+          transition: transform 220ms ease;
+          visibility: hidden;
+        }
+
+        .sidebar.is-open {
+          transform: translateX(0);
+          visibility: visible;
+        }
+
+        .menu-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 19;
+          display: block;
+          border: 0;
+          background: rgb(13 32 24 / 42%);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 220ms ease;
+          visibility: hidden;
+        }
+
+        .menu-backdrop.is-visible {
+          opacity: 1;
+          pointer-events: auto;
+          visibility: visible;
+        }
+
+        .menu-toggle {
+          display: grid;
+          width: 40px;
+          height: 40px;
+          flex: 0 0 40px;
+          place-items: center;
+          border: 1px solid var(--border);
+          border-radius: 9px;
+          color: var(--pine-800);
+          background: #fff;
+          cursor: pointer;
+        }
+
+        .menu-toggle svg {
+          width: 21px;
+          height: 21px;
+        }
+
+        .side-nav {
+          display: grid;
+          gap: 5px;
+        }
+
+        .profile-link {
+          display: flex;
+        }
+
+        .main-area {
+          min-height: 100vh;
+          margin-left: 0;
+        }
+
+        .topbar {
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          min-height: 62px;
+          justify-content: flex-start;
+          padding: 12px 20px;
+        }
+
+        .breadcrumb {
+          flex: 1;
+        }
+
+        .content {
+          padding: 27px 20px 35px;
+        }
+
+        .footer {
+          padding: 13px 20px;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .info-card {
+          padding: 3px 16px;
+        }
+
+        .info-grid,
+        .settings-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .info-item:nth-last-child(-n + 2) {
+          border-bottom: 1px solid #edf1ed;
+        }
+
+        .info-item:last-child {
+          border-bottom: 0;
+        }
+
+        .settings-card.password-card {
+          grid-column: auto;
+        }
+
+        .password-fields {
+          grid-template-columns: 1fr;
+        }
+
+        .footer {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 9px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="side-navigation" aria-label="Navegación principal">
+        <a class="brand" href="dashboard.html" aria-label="Nexo, ir al dashboard">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none">
+              <path
+                d="M16 3 6.5 15h5L5 23h8v6h6v-6h8l-6.5-8h5L16 3Z"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+          <span>
+            <span class="brand-name">Nexo</span>
+            <span class="brand-caption">Gestión inteligente</span>
+          </span>
+        </a>
+
+        <p class="side-label">Menú principal</p>
+        <nav class="side-nav" aria-label="Secciones">
+          <details class="nav-group">
+            <summary>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z" />
+              </svg>
+              Dashboard
+              <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="m7 10 5 5 5-5H7Z" />
+              </svg>
+            </summary>
+            <div class="subnav">
+              <a href="dashboard.html">Vista general</a>
+            </div>
+          </details>
+
+          <a class="nav-link active" href="perfil.html" aria-current="page">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z" />
+            </svg>
+            Perfil
+          </a>
+
+          <a class="nav-link" href="inventario.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="m21 8-9-5-9 5v8l9 5 9-5V8Zm-9-2.69L16.74 8 12 10.64 7.26 8 12 5.31ZM5 9.7l6 3.33v5.24l-6-3.33V9.7Zm8 8.57v-5.24l6-3.33v5.24l-6 3.33Z" />
+            </svg>
+            Inventario
+          </a>
+
+          <details class="nav-group">
+            <summary>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4Zm0 4.18 5 2.22v3.6c0 3.74-2.15 7.34-5 8.64-2.85-1.3-5-4.9-5-8.64V7.4l5-2.22Z" />
+              </svg>
+              Seguridad
+              <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="m7 10 5 5 5-5H7Z" />
+              </svg>
+            </summary>
+            <div class="subnav">
+              <a href="dashboard.html#roles">Roles y privilegios</a>
+              <a href="dashboard.html#usuarios">Usuarios</a>
+            </div>
+          </details>
+
+          <details class="nav-group">
+            <summary>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V11a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 5a3 3 0 0 1 6 0v3H9V6Zm3 11a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z" />
+              </svg>
+              Autenticación
+              <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="m7 10 5 5 5-5H7Z" />
+              </svg>
+            </summary>
+            <div class="subnav">
+              <a href="dashboard.html#cambio-contrasena">Cambio de contraseña</a>
+            </div>
+          </details>
+
+          <a class="nav-link" href="dashboard.html#bitacora">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M13 3a9 9 0 1 0 8.94 10h-2.02A7 7 0 1 1 13 5v4l5-5-5-5v4Zm-1 5v5l4.25 2.52 1.03-1.72L14 12V8h-2Z" />
+            </svg>
+            Bitácora
+          </a>
+
+          <a class="nav-link" href="login.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M10 17v-3H3v-4h7V7l5 5-5 5Zm9-14H5a2 2 0 0 0-2 2v3h2V5h14v14H5v-3H3v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z" />
+            </svg>
+            Cerrar sesión
+          </a>
+        </nav>
+
+        <a class="profile-link" href="perfil.html" aria-current="page">
+          <span class="avatar">
+            <img
+              src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&amp;fit=crop&amp;w=96&amp;h=96&amp;q=80"
+              alt=""
+              loading="lazy"
+            />
+          </span>
+          <span class="profile-meta">
+            <span class="profile-name">Carlos Mendoza</span>
+            <span class="profile-role">Administrador</span>
+          </span>
+        </a>
+      </aside>
+      <button class="menu-backdrop" type="button" aria-label="Cerrar menú" tabindex="-1"></button>
+
+      <div class="main-area">
+        <header class="topbar">
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-label="Abrir menú de navegación"
+            aria-controls="side-navigation"
+            aria-expanded="false"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <p class="breadcrumb">Nexo <span aria-hidden="true">/</span> <strong>Mi perfil</strong></p>
+          <div class="topbar-right">
+            <span class="today">Cuenta personal</span>
+            <span class="topbar-avatar">
+              <img
+                src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&amp;fit=crop&amp;w=96&amp;h=96&amp;q=80"
+                alt="Perfil de Carlos Mendoza"
+              />
+            </span>
+          </div>
+        </header>
+
+        <main class="content">
+          <div class="page-heading">
+            <p class="eyebrow">Cuenta y preferencias</p>
+            <h1>Mi perfil</h1>
+            <p class="page-subtitle">Consulta tu información personal y administra los ajustes de tu cuenta.</p>
+          </div>
+
+          <section class="profile-card" aria-labelledby="profile-name">
+            <div class="profile-photo-wrap">
+              <img
+                class="profile-photo"
+                src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&amp;fit=crop&amp;w=240&amp;h=240&amp;q=85"
+                alt="Fotografía de Carlos Mendoza"
+              />
+              <span class="online-indicator" role="img" aria-label="Cuenta activa"></span>
+            </div>
+            <h2 id="profile-name">Carlos Mendoza</h2>
+            <p class="profile-handle">@carlos.mendoza</p>
+            <span class="role-badge">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4Zm-1 16-4-4 1.41-1.41L11 14.17l4.59-4.58L17 11l-6 6Z" />
+              </svg>
+              Administrador
+            </span>
+          </section>
+
+          <section aria-labelledby="account-info-title">
+            <div class="section-heading">
+              <div>
+                <h2 id="account-info-title">Información de la cuenta</h2>
+                <p>Datos personales asociados a tu perfil.</p>
+              </div>
+            </div>
+            <div class="info-card">
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z" />
+                    </svg>
+                  </span>
+                  <span class="info-copy">
+                    <span class="info-label">Nombre completo</span>
+                    <span class="info-value">Carlos Mendoza</span>
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="info-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4-8 5-8-5V6l8 5 8-5v2Z" />
+                    </svg>
+                  </span>
+                  <span class="info-copy">
+                    <span class="info-label">Correo electrónico</span>
+                    <span class="info-value">carlos.mendoza@nexo.com</span>
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="info-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.56 3.58.56.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.61 21 3 13.39 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.19 2.46.56 3.58a1 1 0 0 1-.25 1.01l-2.19 2.2Z" />
+                    </svg>
+                  </span>
+                  <span class="info-copy">
+                    <span class="info-label">Teléfono</span>
+                    <span class="info-value">+1 (555) 010-2048</span>
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="info-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z" />
+                    </svg>
+                  </span>
+                  <span class="info-copy">
+                    <span class="info-label">Área de trabajo</span>
+                    <span class="info-value">Administración de inventario</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section aria-labelledby="settings-title">
+            <div class="section-heading">
+              <div>
+                <h2 id="settings-title">Ajustes de cuenta</h2>
+                <p>Actualiza tu nombre de usuario, correo o contraseña.</p>
+              </div>
+            </div>
+            <p class="prototype-note">Los cambios son visuales y aún no se guardan en una cuenta real.</p>
+
+            <div class="settings-grid">
+              <article class="settings-card">
+                <div class="settings-title">
+                  <span class="info-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z" />
+                    </svg>
+                  </span>
+                  <span>
+                    <h3>Nombre de usuario</h3>
+                    <p>Este nombre identifica tu cuenta en Nexo.</p>
+                  </span>
+                </div>
+                <form action="#" method="get">
+                  <div class="field">
+                    <label for="username">Nombre de usuario</label>
+                    <input id="username" name="username" type="text" value="carlos.mendoza" autocomplete="username" />
+                  </div>
+                  <div class="form-action">
+                    <button class="action-button" type="button">
+                      Guardar cambios
+                      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17Z" />
+                      </svg>
+                    </button>
+                  </div>
+                </form>
+              </article>
+
+              <article class="settings-card">
+                <div class="settings-title">
+                  <span class="info-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 4-8 5-8-5V6l8 5 8-5v2Z" />
+                    </svg>
+                  </span>
+                  <span>
+                    <h3>Correo electrónico</h3>
+                    <p>Usa un correo al que tengas acceso.</p>
+                  </span>
+                </div>
+                <form action="#" method="get">
+                  <div class="field">
+                    <label for="email">Nuevo correo electrónico</label>
+                    <input id="email" name="email" type="email" placeholder="nombre@ejemplo.com" autocomplete="email" />
+                  </div>
+                  <div class="form-action">
+                    <button class="action-button" type="button">
+                      Actualizar correo
+                      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17Z" />
+                      </svg>
+                    </button>
+                  </div>
+                </form>
+              </article>
+
+              <article class="settings-card password-card">
+                <div class="settings-title">
+                  <span class="info-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M18 8h-1V6a5 5 0 0 0-10 0v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2ZM9 6a3 3 0 0 1 6 0v2H9V6Zm3 11a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z" />
+                    </svg>
+                  </span>
+                  <span>
+                    <h3>Contraseña</h3>
+                    <p>Elige una contraseña segura que no uses en otros sitios.</p>
+                  </span>
+                </div>
+                <form action="#" method="get">
+                  <div class="password-fields">
+                    <div class="field">
+                      <label for="current-password">Contraseña actual</label>
+                      <input id="current-password" name="current-password" type="password" placeholder="Ingresa la actual" autocomplete="current-password" />
+                    </div>
+                    <div class="field">
+                      <label for="new-password">Nueva contraseña</label>
+                      <input id="new-password" name="new-password" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
+                    </div>
+                    <div class="field">
+                      <label for="confirm-password">Confirmar contraseña</label>
+                      <input id="confirm-password" name="confirm-password" type="password" placeholder="Repite la contraseña" autocomplete="new-password" />
+                    </div>
+                  </div>
+                  <div class="form-action">
+                    <button class="action-button" type="button">
+                      Cambiar contraseña
+                      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17Z" />
+                      </svg>
+                    </button>
+                  </div>
+                </form>
+              </article>
+            </div>
+          </section>
+        </main>
+
+        <footer class="footer">
+          <span>© 2025 Nexo. Todos los derechos reservados.</span>
+          <nav class="footer-links" aria-label="Enlaces del pie de página">
+            <a href="#privacidad">Privacidad</a>
+            <a href="#ayuda">Ayuda</a>
+          </nav>
+        </footer>
+      </div>
+    </div>
+
+    <script>
+      const sidebar = document.querySelector(".sidebar");
+      const menuToggle = document.querySelector(".menu-toggle");
+      const menuBackdrop = document.querySelector(".menu-backdrop");
+
+      function setMenuOpen(isOpen) {
+        sidebar.classList.toggle("is-open", isOpen);
+        menuBackdrop.classList.toggle("is-visible", isOpen);
+        menuToggle.setAttribute("aria-expanded", String(isOpen));
+        menuToggle.setAttribute(
+          "aria-label",
+          isOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación",
+        );
+        document.body.classList.toggle("menu-open", isOpen);
+      }
+
+      menuToggle.addEventListener("click", () => {
+        setMenuOpen(menuToggle.getAttribute("aria-expanded") !== "true");
+      });
+
+      menuBackdrop.addEventListener("click", () => setMenuOpen(false));
+
+      sidebar.addEventListener("click", (event) => {
+        if (event.target.closest("a")) {
+          setMenuOpen(false);
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          setMenuOpen(false);
+        }
+      });
+
+      window.addEventListener("resize", () => {
+        if (window.innerWidth > 760) {
+          setMenuOpen(false);
+        }
+      });
+    </script>
+  </body>
+</html>

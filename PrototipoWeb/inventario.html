@@ -1,0 +1,1709 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Inventario de productos de Nexo." />
+    <meta name="theme-color" content="#123d32" />
+    <title>Inventario | Nexo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        --pine-950: #123d32;
+        --pine-900: #174a3b;
+        --pine-800: #1d5a48;
+        --pine-700: #28735a;
+        --green-100: #e7f2eb;
+        --ink: #1d2b24;
+        --muted: #718078;
+        --border: #e5ece7;
+        --canvas: #f6f8f6;
+        --sidebar-width: 258px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        background: var(--canvas);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      button,
+      a,
+      summary {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .app-shell {
+        min-height: 100vh;
+      }
+
+      .menu-toggle,
+      .menu-backdrop {
+        display: none;
+      }
+
+      .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 5;
+        display: flex;
+        width: var(--sidebar-width);
+        flex-direction: column;
+        padding: 27px 18px 20px;
+        color: #e8f2ec;
+        background:
+          radial-gradient(ellipse at 0% 0%, rgb(91 145 111 / 20%), transparent 42%),
+          var(--pine-950);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 11px;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        place-items: center;
+        border: 1px solid rgb(255 255 255 / 14%);
+        border-radius: 13px;
+        color: #fff;
+        background: rgb(255 255 255 / 10%);
+      }
+
+      .brand-mark svg {
+        width: 29px;
+        height: 29px;
+      }
+
+      .brand-name {
+        margin: 0;
+        color: #fff;
+        font-size: 25px;
+        font-weight: 750;
+        letter-spacing: -1px;
+        line-height: 1;
+      }
+
+      .brand-caption {
+        display: block;
+        margin-top: 5px;
+        color: #b6cfc0;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 1.15px;
+        text-transform: uppercase;
+      }
+
+      .side-label {
+        margin: 38px 12px 12px;
+        color: #98b6a4;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.3px;
+        text-transform: uppercase;
+      }
+
+      .side-nav {
+        display: grid;
+        gap: 5px;
+      }
+
+      .nav-link,
+      .nav-group summary {
+        display: flex;
+        min-height: 44px;
+        align-items: center;
+        gap: 12px;
+        padding: 0 12px;
+        border-radius: 9px;
+        color: #c8d9ce;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        list-style: none;
+        transition:
+          color 150ms ease,
+          background-color 150ms ease;
+      }
+
+      .nav-group summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .nav-link:hover,
+      .nav-group summary:hover {
+        color: #fff;
+        background: rgb(255 255 255 / 8%);
+      }
+
+      .nav-link.active {
+        color: #fff;
+        background: #28664f;
+        box-shadow: inset 3px 0 #a6d2b4;
+      }
+
+      .nav-icon {
+        width: 19px;
+        height: 19px;
+        flex: 0 0 19px;
+        color: #a7c4b1;
+      }
+
+      .nav-link.active .nav-icon {
+        color: #d3ead9;
+      }
+
+      .chevron {
+        width: 16px;
+        height: 16px;
+        margin-left: auto;
+        color: #93af9e;
+        transition: transform 150ms ease;
+      }
+
+      .nav-group[open] .chevron {
+        transform: rotate(180deg);
+      }
+
+      .subnav {
+        display: grid;
+        gap: 2px;
+        margin: 3px 0 5px 39px;
+        padding-left: 12px;
+        border-left: 1px solid rgb(196 220 202 / 22%);
+      }
+
+      .subnav a {
+        padding: 9px 7px;
+        border-radius: 6px;
+        color: #b5cbbd;
+        font-size: 12px;
+        line-height: 1.3;
+        transition:
+          color 150ms ease,
+          background-color 150ms ease;
+      }
+
+      .subnav a:hover,
+      .subnav a:focus-visible {
+        color: #fff;
+        background: rgb(255 255 255 / 8%);
+      }
+
+      .profile-link {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-top: auto;
+        padding: 16px 9px 0;
+        border-top: 1px solid rgb(255 255 255 / 12%);
+      }
+
+      .avatar {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        place-items: center;
+        overflow: hidden;
+        border: 2px solid rgb(255 255 255 / 25%);
+        border-radius: 50%;
+        color: var(--pine-950);
+        background: #d7e8dc;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .profile-meta {
+        min-width: 0;
+      }
+
+      .profile-name {
+        display: block;
+        overflow: hidden;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .profile-role {
+        display: block;
+        margin-top: 4px;
+        color: #a9c2b2;
+        font-size: 10px;
+      }
+
+      .main-area {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        margin-left: var(--sidebar-width);
+      }
+
+      .topbar {
+        display: flex;
+        min-height: 82px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 16px clamp(24px, 4vw, 58px);
+        border-bottom: 1px solid var(--border);
+        background: rgb(255 255 255 / 88%);
+      }
+
+      .breadcrumb {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .breadcrumb strong {
+        color: var(--pine-800);
+        font-weight: 650;
+      }
+
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .today {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .topbar-avatar {
+        width: 36px;
+        height: 36px;
+        overflow: hidden;
+        border: 2px solid #e0ebe3;
+        border-radius: 50%;
+        background: #d7e8dc;
+      }
+
+      .topbar-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .content {
+        width: min(100%, 1600px);
+        flex: 1;
+        margin: 0 auto;
+        padding: 32px clamp(20px, 3vw, 42px) 38px;
+      }
+
+      .page-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        margin: 0 0 7px;
+        color: var(--pine-700);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
+      }
+
+      .page-heading h1 {
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(24px, 3vw, 30px);
+        font-weight: 700;
+        letter-spacing: -0.8px;
+      }
+
+      .page-subtitle {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .primary-button {
+        display: inline-flex;
+        min-height: 39px;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 13px;
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        background: var(--pine-800);
+        box-shadow: 0 4px 10px rgb(29 90 72 / 13%);
+        cursor: pointer;
+        font: inherit;
+        font-size: 11px;
+        font-weight: 650;
+        transition:
+          background-color 150ms ease,
+          transform 150ms ease;
+      }
+
+      .primary-button:hover {
+        background: var(--pine-950);
+        transform: translateY(-1px);
+      }
+
+      .primary-button svg {
+        width: 17px;
+        height: 17px;
+      }
+
+      .table-card {
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        background: #fff;
+        box-shadow: 0 4px 15px rgb(22 57 39 / 4%);
+      }
+
+      .table-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 17px 18px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .toolbar-title h2 {
+        margin: 0;
+        color: #34443b;
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .toolbar-title p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .toolbar-controls {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+      }
+
+      .search-wrap {
+        position: relative;
+        width: min(250px, 28vw);
+      }
+
+      .search-wrap svg {
+        position: absolute;
+        top: 50%;
+        left: 11px;
+        width: 16px;
+        height: 16px;
+        color: #87958d;
+        pointer-events: none;
+        transform: translateY(-50%);
+      }
+
+      .search-wrap input,
+      .filter-select {
+        height: 36px;
+        border: 1px solid #dfe8e2;
+        border-radius: 8px;
+        outline: none;
+        color: #34443b;
+        background: #fff;
+        font: inherit;
+        font-size: 10px;
+      }
+
+      .search-wrap input {
+        width: 100%;
+        padding: 0 11px 0 34px;
+      }
+
+      .search-wrap input::placeholder {
+        color: #9aa79f;
+      }
+
+      .filter-select {
+        min-width: 122px;
+        padding: 0 26px 0 10px;
+      }
+
+      .search-wrap input:focus-visible,
+      .filter-select:focus-visible {
+        border-color: var(--pine-700);
+        box-shadow: 0 0 0 3px rgb(40 115 90 / 12%);
+      }
+
+      .table-scroll {
+        width: 100%;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-color: #b7c8bc #f0f4f1;
+        scrollbar-width: thin;
+      }
+
+      .inventory-table {
+        width: 100%;
+        min-width: 1550px;
+        border-collapse: separate;
+        border-spacing: 0;
+        text-align: left;
+      }
+
+      .inventory-table th {
+        padding: 12px 12px;
+        border-bottom: 1px solid var(--border);
+        color: #718078;
+        background: #f8faf8;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.35px;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .inventory-table th:first-child,
+      .inventory-table td:first-child {
+        padding-left: 18px;
+      }
+
+      .inventory-table th:last-child,
+      .inventory-table td:last-child {
+        padding-right: 18px;
+      }
+
+      .sort-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0;
+        border: 0;
+        color: inherit;
+        background: transparent;
+        cursor: pointer;
+        font: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        letter-spacing: inherit;
+        text-transform: inherit;
+      }
+
+      .sort-button:hover {
+        color: var(--pine-800);
+      }
+
+      .sort-indicator {
+        color: #9ba8a0;
+        font-size: 10px;
+      }
+
+      .inventory-table td {
+        max-width: 230px;
+        padding: 13px 12px;
+        border-bottom: 1px solid #edf1ed;
+        color: #56665c;
+        font-size: 10px;
+        line-height: 1.45;
+        vertical-align: middle;
+      }
+
+      .inventory-table tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .inventory-table tbody tr:hover td {
+        background: #fbfdfb;
+      }
+
+      .article-code {
+        display: block;
+        color: var(--pine-800);
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .article-name {
+        display: block;
+        margin-top: 3px;
+        color: #8a968e;
+        font-size: 9px;
+        white-space: nowrap;
+      }
+
+      .description-cell {
+        min-width: 175px;
+      }
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        font-size: 9px;
+        font-weight: 650;
+        white-space: nowrap;
+      }
+
+      .status-badge::before {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+        content: "";
+      }
+
+      .status-neutro {
+        color: #347656;
+        background: #e9f4ed;
+      }
+
+      .status-devolucion {
+        color: #9a702c;
+        background: #fbf3e3;
+      }
+
+      .status-vencido {
+        color: #a55248;
+        background: #faecea;
+      }
+
+      .status-bajo {
+        color: #526e98;
+        background: #edf2fa;
+      }
+
+      .number-cell {
+        color: #34443b !important;
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .trace-cell,
+      .observation-cell {
+        min-width: 150px;
+        overflow-wrap: anywhere;
+      }
+
+      .action-cell {
+        min-width: 115px;
+        white-space: nowrap;
+      }
+
+      .row-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .icon-button {
+        display: grid;
+        width: 29px;
+        height: 29px;
+        place-items: center;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        color: #718078;
+        background: transparent;
+        cursor: pointer;
+        transition:
+          color 140ms ease,
+          background-color 140ms ease,
+          border-color 140ms ease;
+      }
+
+      .icon-button svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      .icon-button.view:hover {
+        border-color: #dcebe1;
+        color: var(--pine-700);
+        background: #f0f7f2;
+      }
+
+      .icon-button.edit:hover {
+        border-color: #e9e2ca;
+        color: #9a702c;
+        background: #fbf7eb;
+      }
+
+      .icon-button.delete:hover {
+        border-color: #f0d9d6;
+        color: #a55248;
+        background: #fdf2f0;
+      }
+
+      .table-footer {
+        display: flex;
+        min-height: 58px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 18px;
+        border-top: 1px solid var(--border);
+      }
+
+      .table-count {
+        color: #7a8980;
+        font-size: 10px;
+      }
+
+      .pagination {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .page-button {
+        display: grid;
+        min-width: 29px;
+        height: 29px;
+        place-items: center;
+        padding: 0 7px;
+        border: 1px solid #e1e9e3;
+        border-radius: 7px;
+        color: #64746a;
+        background: #fff;
+        cursor: pointer;
+        font: inherit;
+        font-size: 10px;
+      }
+
+      .page-button:hover:not(:disabled),
+      .page-button[aria-current="page"] {
+        border-color: var(--pine-700);
+        color: #fff;
+        background: var(--pine-700);
+      }
+
+      .page-button:disabled {
+        color: #b3bdb6;
+        cursor: not-allowed;
+      }
+
+      .empty-state {
+        padding: 38px 16px !important;
+        color: var(--muted) !important;
+        text-align: center;
+      }
+
+      .live-region {
+        min-height: 18px;
+        margin: 10px 2px 0;
+        color: var(--pine-800);
+        font-size: 11px;
+      }
+
+      dialog {
+        width: min(100% - 32px, 520px);
+        max-height: min(82vh, 700px);
+        padding: 0;
+        overflow: auto;
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        color: var(--ink);
+        background: #fff;
+        box-shadow: 0 24px 80px rgb(12 45 30 / 24%);
+      }
+
+      dialog::backdrop {
+        background: rgb(11 31 22 / 48%);
+        backdrop-filter: blur(2px);
+      }
+
+      .dialog-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 20px 21px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .dialog-header h2 {
+        margin: 0;
+        color: var(--pine-950);
+        font-size: 17px;
+      }
+
+      .dialog-header p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .dialog-close {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        flex: 0 0 30px;
+        place-items: center;
+        border: 0;
+        border-radius: 7px;
+        color: #64746a;
+        background: #f3f6f3;
+        cursor: pointer;
+        font-size: 19px;
+      }
+
+      .dialog-content {
+        padding: 18px 21px 21px;
+      }
+
+      .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .detail-item {
+        min-width: 0;
+        padding: 11px;
+        border: 1px solid #edf1ed;
+        border-radius: 8px;
+        background: #fbfcfb;
+      }
+
+      .detail-label {
+        display: block;
+        margin-bottom: 5px;
+        color: #8a968e;
+        font-size: 9px;
+        font-weight: 650;
+        text-transform: uppercase;
+      }
+
+      .detail-value {
+        color: #34443b;
+        font-size: 11px;
+        overflow-wrap: anywhere;
+      }
+
+      .dialog-form {
+        display: grid;
+        gap: 13px;
+      }
+
+      .dialog-form .field label {
+        font-size: 11px;
+      }
+
+      .dialog-form .field input,
+      .dialog-form .field select,
+      .dialog-form .field textarea {
+        width: 100%;
+        min-height: 39px;
+        padding: 9px 11px;
+        border: 1px solid #dce7df;
+        border-radius: 8px;
+        color: var(--ink);
+        background: #fff;
+        font: inherit;
+        font-size: 11px;
+      }
+
+      .dialog-form .field textarea {
+        min-height: 76px;
+        resize: vertical;
+      }
+
+      .dialog-form .field input:focus-visible,
+      .dialog-form .field select:focus-visible,
+      .dialog-form .field textarea:focus-visible {
+        border-color: var(--pine-700);
+        outline: none;
+        box-shadow: 0 0 0 3px rgb(40 115 90 / 12%);
+      }
+
+      .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .secondary-button,
+      .danger-button {
+        min-height: 36px;
+        padding: 0 13px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: #53645a;
+        background: #fff;
+        cursor: pointer;
+        font: inherit;
+        font-size: 10px;
+        font-weight: 650;
+      }
+
+      .danger-button {
+        border-color: #a55248;
+        color: #fff;
+        background: #a55248;
+      }
+
+      .danger-button:hover {
+        background: #8d4038;
+      }
+
+      .footer {
+        display: flex;
+        min-height: 55px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px clamp(20px, 3vw, 42px);
+        border-top: 1px solid var(--border);
+        color: #87948c;
+        background: #fff;
+        font-size: 10px;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 17px;
+      }
+
+      .footer a:hover {
+        color: var(--pine-700);
+      }
+
+      :focus-visible {
+        outline: 3px solid #8bb9a0;
+        outline-offset: 3px;
+      }
+
+      @media (max-width: 1050px) {
+        :root {
+          --sidebar-width: 228px;
+        }
+
+        .content,
+        .topbar,
+        .footer {
+          padding-right: 22px;
+          padding-left: 22px;
+        }
+
+        .inventory-table {
+          min-width: 1450px;
+        }
+      }
+
+      @media (max-width: 760px) {
+        :root {
+          --sidebar-width: 0px;
+        }
+
+        body.menu-open {
+          overflow: hidden;
+        }
+
+        .sidebar {
+          position: fixed;
+          inset: 0 auto 0 0;
+          z-index: 20;
+          width: min(84vw, 310px);
+          min-height: 100vh;
+          min-height: 100dvh;
+          overflow-y: auto;
+          padding: 24px 18px 20px;
+          box-shadow: 16px 0 40px rgb(9 37 26 / 20%);
+          transform: translateX(-105%);
+          transition: transform 220ms ease;
+          visibility: hidden;
+        }
+
+        .sidebar.is-open {
+          transform: translateX(0);
+          visibility: visible;
+        }
+
+        .menu-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 19;
+          display: block;
+          border: 0;
+          background: rgb(13 32 24 / 42%);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 220ms ease;
+          visibility: hidden;
+        }
+
+        .menu-backdrop.is-visible {
+          opacity: 1;
+          pointer-events: auto;
+          visibility: visible;
+        }
+
+        .menu-toggle {
+          display: grid;
+          width: 40px;
+          height: 40px;
+          flex: 0 0 40px;
+          place-items: center;
+          border: 1px solid var(--border);
+          border-radius: 9px;
+          color: var(--pine-800);
+          background: #fff;
+          cursor: pointer;
+        }
+
+        .menu-toggle svg {
+          width: 21px;
+          height: 21px;
+        }
+
+        .main-area {
+          margin-left: 0;
+        }
+
+        .topbar {
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          min-height: 62px;
+          justify-content: flex-start;
+          padding: 10px 16px;
+        }
+
+        .breadcrumb {
+          flex: 1;
+        }
+
+        .content {
+          padding: 25px 16px 30px;
+        }
+
+        .footer {
+          padding: 13px 16px;
+        }
+
+        .page-heading {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .table-toolbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .toolbar-controls {
+          width: 100%;
+        }
+
+        .search-wrap {
+          width: auto;
+          flex: 1;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .toolbar-controls {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .search-wrap {
+          width: 100%;
+          flex: auto;
+        }
+
+        .filter-select {
+          width: 100%;
+        }
+
+        .table-footer {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .footer {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 9px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="side-navigation" aria-label="Navegación principal">
+        <a class="brand" href="dashboard.html" aria-label="Nexo, ir al dashboard">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M16 3 6.5 15h5L5 23h8v6h6v-6h8l-6.5-8h5L16 3Z" fill="currentColor" />
+            </svg>
+          </span>
+          <span>
+            <span class="brand-name">Nexo</span>
+            <span class="brand-caption">Gestión inteligente</span>
+          </span>
+        </a>
+
+        <p class="side-label">Menú principal</p>
+        <nav class="side-nav" aria-label="Secciones">
+          <details class="nav-group">
+            <summary>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z" />
+              </svg>
+              Dashboard
+              <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m7 10 5 5 5-5H7Z" /></svg>
+            </summary>
+            <div class="subnav"><a href="dashboard.html">Vista general</a></div>
+          </details>
+
+          <a class="nav-link" href="perfil.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z" />
+            </svg>
+            Perfil
+          </a>
+
+          <a class="nav-link active" href="inventario.html" aria-current="page">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="m21 8-9-5-9 5v8l9 5 9-5V8Zm-9-2.69L16.74 8 12 10.64 7.26 8 12 5.31ZM5 9.7l6 3.33v5.24l-6-3.33V9.7Zm8 8.57v-5.24l6-3.33v5.24l-6 3.33Z" />
+            </svg>
+            Inventario
+          </a>
+
+          <details class="nav-group">
+            <summary>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4Zm0 4.18 5 2.22v3.6c0 3.74-2.15 7.34-5 8.64-2.85-1.3-5-4.9-5-8.64V7.4l5-2.22Z" />
+              </svg>
+              Seguridad
+              <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m7 10 5 5 5-5H7Z" /></svg>
+            </summary>
+            <div class="subnav">
+              <a href="dashboard.html#roles">Roles y privilegios</a>
+              <a href="dashboard.html#usuarios">Usuarios</a>
+            </div>
+          </details>
+
+          <details class="nav-group">
+            <summary>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V11a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 5a3 3 0 0 1 6 0v3H9V6Zm3 11a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z" />
+              </svg>
+              Autenticación
+              <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m7 10 5 5 5-5H7Z" /></svg>
+            </summary>
+            <div class="subnav"><a href="dashboard.html#cambio-contrasena">Cambio de contraseña</a></div>
+          </details>
+
+          <a class="nav-link" href="dashboard.html#bitacora">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M13 3a9 9 0 1 0 8.94 10h-2.02A7 7 0 1 1 13 5v4l5-5-5-5v4Zm-1 5v5l4.25 2.52 1.03-1.72L14 12V8h-2Z" />
+            </svg>
+            Bitácora
+          </a>
+
+          <a class="nav-link" href="login.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M10 17v-3H3v-4h7V7l5 5-5 5Zm9-14H5a2 2 0 0 0-2 2v3h2V5h14v14H5v-3H3v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z" />
+            </svg>
+            Cerrar sesión
+          </a>
+        </nav>
+
+        <a class="profile-link" href="perfil.html">
+          <span class="avatar">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&amp;fit=crop&amp;w=96&amp;h=96&amp;q=80" alt="" loading="lazy" />
+          </span>
+          <span class="profile-meta">
+            <span class="profile-name">Carlos Mendoza</span>
+            <span class="profile-role">Administrador</span>
+          </span>
+        </a>
+      </aside>
+      <button class="menu-backdrop" type="button" aria-label="Cerrar menú" tabindex="-1"></button>
+
+      <div class="main-area">
+        <header class="topbar">
+          <button class="menu-toggle" type="button" aria-label="Abrir menú de navegación" aria-controls="side-navigation" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <p class="breadcrumb">Nexo <span aria-hidden="true">/</span> <strong>Inventario</strong></p>
+          <div class="topbar-right">
+            <span class="today">Módulo de productos</span>
+            <span class="topbar-avatar">
+              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&amp;fit=crop&amp;w=96&amp;h=96&amp;q=80" alt="Perfil de Carlos Mendoza" />
+            </span>
+          </div>
+        </header>
+
+        <main class="content">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">Módulo de productos</p>
+              <h1>Inventario</h1>
+              <p class="page-subtitle">Consulta y administra los artículos registrados en tu inventario.</p>
+            </div>
+          </div>
+
+          <section class="table-card" aria-labelledby="table-title">
+            <div class="table-toolbar">
+              <div class="toolbar-title">
+                <h2 id="table-title">Artículos registrados</h2>
+                <p id="table-description">Busca, filtra y ordena los productos del inventario.</p>
+              </div>
+              <div class="toolbar-controls">
+                <label class="search-wrap">
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.5 6.5 0 1 0 14 15.5l.27.28v.79l5 4.99L20.49 20l-4.99-5Zm-5 0A4.5 4.5 0 1 1 10.5 5a4.5 4.5 0 0 1 0 9Z" /></svg>
+                  <input id="search-input" type="search" placeholder="Buscar artículos..." autocomplete="off" aria-label="Buscar artículos" />
+                </label>
+                <label>
+                  <span class="sr-only">Filtrar por estado</span>
+                  <select class="filter-select" id="status-filter" aria-label="Filtrar por estado">
+                    <option value="">Todos los estados</option>
+                    <option value="Neutro">Neutro</option>
+                    <option value="Devolución">Devolución</option>
+                    <option value="Vencido">Vencido</option>
+                    <option value="Bajo">Bajo stock</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="table-scroll" tabindex="0" aria-label="Tabla de inventario; desplaza horizontalmente para ver todas las columnas">
+              <table class="inventory-table" aria-describedby="table-description">
+                <thead>
+                  <tr>
+                    <th scope="col"><button class="sort-button" data-sort="article" type="button">Artículo <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+                    <th scope="col"><button class="sort-button" data-sort="description" type="button">Descripción del artículo <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+                    <th scope="col"><button class="sort-button" data-sort="status" type="button">Estado <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+                    <th scope="col"><button class="sort-button" data-sort="onHand" type="button">On hand <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+                    <th scope="col"><button class="sort-button" data-sort="balance" type="button">Saldo <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+                    <th scope="col"><button class="sort-button" data-sort="traceability" type="button">Trazabilidad <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+                    <th scope="col"><button class="sort-button" data-sort="uom" type="button">UOM primaria <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+                    <th scope="col"><button class="sort-button" data-sort="laboratory" type="button">Laboratorio <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+                    <th scope="col"><button class="sort-button" data-sort="brand" type="button">Marca <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+                    <th scope="col"><button class="sort-button" data-sort="returnPolicy" type="button">Política devolución <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+                    <th scope="col"><button class="sort-button" data-sort="observation" type="button">Observación <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+                    <th scope="col">Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-body"></tbody>
+              </table>
+            </div>
+
+            <div class="table-footer">
+              <span class="table-count" id="table-count" aria-live="polite"></span>
+              <nav class="pagination" id="pagination" aria-label="Paginación de inventario"></nav>
+            </div>
+          </section>
+          <p class="live-region" id="status-message" role="status" aria-live="polite"></p>
+        </main>
+
+        <footer class="footer">
+          <span>© 2025 Nexo. Todos los derechos reservados.</span>
+          <nav class="footer-links" aria-label="Enlaces del pie de página">
+            <a href="#privacidad">Privacidad</a>
+            <a href="#ayuda">Ayuda</a>
+          </nav>
+        </footer>
+      </div>
+    </div>
+
+    <dialog id="item-dialog" aria-labelledby="dialog-title">
+      <div class="dialog-header">
+        <div>
+          <h2 id="dialog-title">Detalle del artículo</h2>
+          <p id="dialog-subtitle"></p>
+        </div>
+        <button class="dialog-close" type="button" data-close-dialog aria-label="Cerrar">×</button>
+      </div>
+      <div class="dialog-content" id="dialog-content"></div>
+    </dialog>
+
+    <script>
+      const items = [
+        { article: "NX-1001", name: "Paracetamol 500 mg", description: "Tabletas analgésicas, caja con 20 unidades", status: "Neutro", onHand: 145, balance: 120, traceability: "Lote PCT-2408 · Vence 08/2027", uom: "Caja", laboratory: "Laboratorios Nexo", brand: "NexoCare", returnPolicy: "30 días", observation: "Almacenamiento normal" },
+        { article: "NX-1002", name: "Alcohol antiséptico 70%", description: "Solución tópica, frasco de 500 ml", status: "Devolución", onHand: 32, balance: 18, traceability: "Lote ALC-2311 · Vence 11/2026", uom: "Frasco", laboratory: "Salud Integral", brand: "Sanitex", returnPolicy: "15 días", observation: "Empaque dañado · revisar" },
+        { article: "NX-1003", name: "Vitamina C 1 g", description: "Tabletas efervescentes, tubo con 10 unidades", status: "Neutro", onHand: 86, balance: 64, traceability: "Lote VTC-2502 · Vence 02/2028", uom: "Tubo", laboratory: "FarmaNova", brand: "VitalPlus", returnPolicy: "30 días", observation: "Sin novedades" },
+        { article: "NX-1004", name: "Jarabe para la tos", description: "Solución oral pediátrica, frasco de 120 ml", status: "Vencido", onHand: 14, balance: 0, traceability: "Lote JAR-2206 · Venció 06/2025", uom: "Frasco", laboratory: "Laboratorios Nexo", brand: "Respira", returnPolicy: "No aplica", observation: "Retirar de estantería" },
+        { article: "NX-1005", name: "Guantes de nitrilo M", description: "Guantes desechables, caja con 100 unidades", status: "Bajo", onHand: 9, balance: 9, traceability: "Lote GNT-2501 · Sin vencimiento", uom: "Caja", laboratory: "MedSupply", brand: "SafeTouch", returnPolicy: "15 días", observation: "Reponer esta semana" },
+        { article: "NX-1006", name: "Suero fisiológico 0.9%", description: "Solución estéril, bolsa de 1000 ml", status: "Neutro", onHand: 58, balance: 53, traceability: "Lote SFR-2412 · Vence 12/2026", uom: "Bolsa", laboratory: "Clínica Farma", brand: "HydraMed", returnPolicy: "30 días", observation: "Mantener en área fresca" },
+        { article: "NX-1007", name: "Crema hidratante", description: "Crema dermatológica, tubo de 100 g", status: "Devolución", onHand: 21, balance: 17, traceability: "Lote CRH-2405 · Vence 05/2027", uom: "Tubo", laboratory: "DermaLab", brand: "DermaSoft", returnPolicy: "15 días", observation: "Devolución por cambio" },
+        { article: "NX-1008", name: "Mascarilla quirúrgica", description: "Mascarillas de tres capas, caja con 50 unidades", status: "Neutro", onHand: 210, balance: 190, traceability: "Lote MSQ-2503 · Sin vencimiento", uom: "Caja", laboratory: "MedSupply", brand: "SafeTouch", returnPolicy: "30 días", observation: "Inventario actualizado" },
+        { article: "NX-1009", name: "Termómetro digital", description: "Termómetro clínico digital con estuche", status: "Neutro", onHand: 27, balance: 25, traceability: "Serie TD-88312 · Sin vencimiento", uom: "Unidad", laboratory: "TecnoSalud", brand: "TempCheck", returnPolicy: "90 días", observation: "Garantía vigente" },
+        { article: "NX-1010", name: "Ibuprofeno 400 mg", description: "Comprimidos recubiertos, caja con 24 unidades", status: "Bajo", onHand: 7, balance: 7, traceability: "Lote IBU-2409 · Vence 09/2027", uom: "Caja", laboratory: "FarmaNova", brand: "NexoCare", returnPolicy: "30 días", observation: "Pedido sugerido" },
+        { article: "NX-1011", name: "Gasas estériles", description: "Paquete de 10 gasas de 10 × 10 cm", status: "Neutro", onHand: 74, balance: 68, traceability: "Lote GAS-2504 · Vence 04/2030", uom: "Paquete", laboratory: "MedSupply", brand: "SafeTouch", returnPolicy: "30 días", observation: "Sin novedades" },
+        { article: "NX-1012", name: "Antibiótico tópico", description: "Ungüento de uso externo, tubo de 15 g", status: "Vencido", onHand: 5, balance: 0, traceability: "Lote ANT-2303 · Venció 03/2026", uom: "Tubo", laboratory: "Clínica Farma", brand: "CuraMax", returnPolicy: "No aplica", observation: "Pendiente de baja" },
+      ];
+
+      const inventoryBody = document.querySelector("#inventory-body");
+      const searchInput = document.querySelector("#search-input");
+      const statusFilter = document.querySelector("#status-filter");
+      const tableCount = document.querySelector("#table-count");
+      const pagination = document.querySelector("#pagination");
+      const statusMessage = document.querySelector("#status-message");
+      const itemDialog = document.querySelector("#item-dialog");
+      const dialogTitle = document.querySelector("#dialog-title");
+      const dialogSubtitle = document.querySelector("#dialog-subtitle");
+      const dialogContent = document.querySelector("#dialog-content");
+      const pageSize = 6;
+      let currentPage = 1;
+      let sortKey = "article";
+      let sortDirection = 1;
+      let selectedArticle = null;
+      let deleteArticle = null;
+
+      const columns = [
+        ["article", "Artículo"],
+        ["description", "Descripción del artículo"],
+        ["status", "Estado"],
+        ["onHand", "On hand"],
+        ["balance", "Saldo"],
+        ["traceability", "Trazabilidad"],
+        ["uom", "UOM primaria"],
+        ["laboratory", "Laboratorio"],
+        ["brand", "Marca"],
+        ["returnPolicy", "Política devolución"],
+        ["observation", "Observación"],
+      ];
+
+      function createCell(value, className = "") {
+        const cell = document.createElement("td");
+        if (className) cell.className = className;
+        cell.textContent = value;
+        return cell;
+      }
+
+      function createActionButton(action, label, icon) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `icon-button ${action}`;
+        button.dataset.action = action;
+        button.setAttribute("aria-label", `${label} artículo`);
+        button.title = label;
+        button.innerHTML = icon;
+        return button;
+      }
+
+      function visibleItems() {
+        const query = searchInput.value.trim().toLocaleLowerCase("es");
+        const status = statusFilter.value;
+
+        return items
+          .filter((item) => {
+            const matchesQuery = Object.values(item)
+              .some((value) => String(value).toLocaleLowerCase("es").includes(query));
+            return matchesQuery && (!status || item.status === status);
+          })
+          .sort((left, right) => {
+            const a = left[sortKey];
+            const b = right[sortKey];
+            const comparison =
+              typeof a === "number"
+                ? a - b
+                : String(a).localeCompare(String(b), "es", { numeric: true, sensitivity: "base" });
+            return comparison * sortDirection;
+          });
+      }
+
+      function render() {
+        const filtered = visibleItems();
+        const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+        currentPage = Math.min(currentPage, pageCount);
+        const start = (currentPage - 1) * pageSize;
+        const pageItems = filtered.slice(start, start + pageSize);
+        inventoryBody.replaceChildren();
+
+        if (pageItems.length === 0) {
+          const row = document.createElement("tr");
+          const cell = document.createElement("td");
+          cell.className = "empty-state";
+          cell.colSpan = 12;
+          cell.textContent = "No se encontraron artículos. Prueba con otra búsqueda o filtro.";
+          row.append(cell);
+          inventoryBody.append(row);
+        } else {
+          for (const item of pageItems) {
+            const row = document.createElement("tr");
+            row.dataset.article = item.article;
+
+            const articleCell = document.createElement("td");
+            const articleCode = document.createElement("span");
+            articleCode.className = "article-code";
+            articleCode.textContent = item.article;
+            const articleName = document.createElement("span");
+            articleName.className = "article-name";
+            articleName.textContent = item.name;
+            articleCell.append(articleCode, articleName);
+            row.append(articleCell);
+            row.append(createCell(item.description, "description-cell"));
+
+            const statusCell = document.createElement("td");
+            const badge = document.createElement("span");
+            badge.className = `status-badge status-${item.status.toLocaleLowerCase("es").normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`;
+            badge.textContent = item.status === "Bajo" ? "Bajo stock" : item.status;
+            statusCell.append(badge);
+            row.append(statusCell);
+            row.append(createCell(item.onHand.toLocaleString("es"), "number-cell"));
+            row.append(createCell(item.balance.toLocaleString("es"), "number-cell"));
+            row.append(createCell(item.traceability, "trace-cell"));
+            row.append(createCell(item.uom));
+            row.append(createCell(item.laboratory));
+            row.append(createCell(item.brand));
+            row.append(createCell(item.returnPolicy));
+            row.append(createCell(item.observation, "observation-cell"));
+
+            const actionsCell = document.createElement("td");
+            actionsCell.className = "action-cell";
+            const actions = document.createElement("div");
+            actions.className = "row-actions";
+            actions.append(
+              createActionButton("view", "Ver", '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5c-5 0-9.27 3.11-11 7 1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /></svg>'),
+              createActionButton("edit", "Editar", '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm17.71-10.04a1 1 0 0 0 0-1.41l-2.51-2.51a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 2-1.66Z" /></svg>'),
+              createActionButton("delete", "Eliminar", '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12ZM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4Z" /></svg>'),
+            );
+            actionsCell.append(actions);
+            row.append(actionsCell);
+            inventoryBody.append(row);
+          }
+        }
+
+        const shownStart = filtered.length === 0 ? 0 : start + 1;
+        const shownEnd = Math.min(start + pageSize, filtered.length);
+        tableCount.textContent = `Mostrando ${shownStart}–${shownEnd} de ${filtered.length} artículos`;
+        renderPagination(pageCount);
+      }
+
+      function renderPagination(pageCount) {
+        pagination.replaceChildren();
+        const previous = document.createElement("button");
+        previous.type = "button";
+        previous.className = "page-button";
+        previous.textContent = "‹";
+        previous.setAttribute("aria-label", "Página anterior");
+        previous.disabled = currentPage <= 1;
+        previous.addEventListener("click", () => changePage(currentPage - 1));
+        pagination.append(previous);
+
+        for (let page = 1; page <= pageCount; page += 1) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "page-button";
+          button.textContent = String(page);
+          button.setAttribute("aria-label", `Página ${page}`);
+          if (page === currentPage) button.setAttribute("aria-current", "page");
+          button.addEventListener("click", () => changePage(page));
+          pagination.append(button);
+        }
+
+        const next = document.createElement("button");
+        next.type = "button";
+        next.className = "page-button";
+        next.textContent = "›";
+        next.setAttribute("aria-label", "Página siguiente");
+        next.disabled = currentPage >= pageCount;
+        next.addEventListener("click", () => changePage(currentPage + 1));
+        pagination.append(next);
+      }
+
+      function changePage(page) {
+        currentPage = page;
+        render();
+      }
+
+      function setDialog(title, subtitle, content) {
+        dialogTitle.textContent = title;
+        dialogSubtitle.textContent = subtitle;
+        dialogContent.replaceChildren(content);
+        itemDialog.showModal();
+      }
+
+      function createDetails(item) {
+        const grid = document.createElement("div");
+        grid.className = "detail-grid";
+        for (const [key, label] of columns) {
+          const entry = document.createElement("div");
+          entry.className = "detail-item";
+          const name = document.createElement("span");
+          name.className = "detail-label";
+          name.textContent = label;
+          const value = document.createElement("span");
+          value.className = "detail-value";
+          value.textContent = String(item[key]);
+          entry.append(name, value);
+          grid.append(entry);
+        }
+        const name = document.createElement("div");
+        name.className = "detail-item";
+        const nameLabel = document.createElement("span");
+        nameLabel.className = "detail-label";
+        nameLabel.textContent = "Nombre del producto";
+        const nameValue = document.createElement("span");
+        nameValue.className = "detail-value";
+        nameValue.textContent = item.name;
+        name.append(nameLabel, nameValue);
+        grid.prepend(name);
+        return grid;
+      }
+
+      function editItem(item) {
+        selectedArticle = item.article;
+        const form = document.createElement("form");
+        form.className = "dialog-form";
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const currentItem = items.find((entry) => entry.article === selectedArticle);
+          if (!currentItem) return;
+          currentItem.status = form.elements.status.value;
+          currentItem.onHand = Number(form.elements.onHand.value);
+          currentItem.balance = Number(form.elements.balance.value);
+          currentItem.observation = form.elements.observation.value.trim();
+          itemDialog.close();
+          render();
+          statusMessage.textContent = `Se actualizaron los datos de ${currentItem.article}.`;
+        });
+
+        const statusField = document.createElement("div");
+        statusField.className = "field";
+        const statusLabel = document.createElement("label");
+        statusLabel.htmlFor = "edit-status";
+        statusLabel.textContent = "Estado";
+        const statusSelect = document.createElement("select");
+        statusSelect.id = "edit-status";
+        statusSelect.name = "status";
+        for (const value of ["Neutro", "Devolución", "Vencido", "Bajo"]) {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value === "Bajo" ? "Bajo stock" : value;
+          option.selected = item.status === value;
+          statusSelect.append(option);
+        }
+        statusField.append(statusLabel, statusSelect);
+
+        const stockFields = document.createElement("div");
+        stockFields.className = "detail-grid";
+        for (const [key, label] of [["onHand", "On hand"], ["balance", "Saldo"]]) {
+          const field = document.createElement("div");
+          field.className = "field";
+          const fieldLabel = document.createElement("label");
+          fieldLabel.htmlFor = `edit-${key}`;
+          fieldLabel.textContent = label;
+          const input = document.createElement("input");
+          input.id = `edit-${key}`;
+          input.name = key;
+          input.type = "number";
+          input.min = "0";
+          input.required = true;
+          input.value = String(item[key]);
+          field.append(fieldLabel, input);
+          stockFields.append(field);
+        }
+
+        const observationField = document.createElement("div");
+        observationField.className = "field";
+        const observationLabel = document.createElement("label");
+        observationLabel.htmlFor = "edit-observation";
+        observationLabel.textContent = "Observación";
+        const observationInput = document.createElement("textarea");
+        observationInput.id = "edit-observation";
+        observationInput.name = "observation";
+        observationInput.value = item.observation;
+        observationField.append(observationLabel, observationInput);
+        const actions = document.createElement("div");
+        actions.className = "dialog-actions";
+        const cancel = document.createElement("button");
+        cancel.type = "button";
+        cancel.className = "secondary-button";
+        cancel.dataset.closeDialog = "";
+        cancel.textContent = "Cancelar";
+        const save = document.createElement("button");
+        save.type = "submit";
+        save.className = "primary-button";
+        save.textContent = "Guardar cambios";
+        actions.append(cancel, save);
+        form.append(statusField, stockFields, observationField, actions);
+        setDialog("Editar artículo", `${item.article} · ${item.name}`, form);
+      }
+
+      searchInput.addEventListener("input", () => {
+        currentPage = 1;
+        render();
+      });
+
+      statusFilter.addEventListener("change", () => {
+        currentPage = 1;
+        render();
+      });
+
+      document.querySelectorAll(".sort-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          const nextKey = button.dataset.sort;
+          sortDirection = sortKey === nextKey ? sortDirection * -1 : 1;
+          sortKey = nextKey;
+          document.querySelectorAll(".sort-button").forEach((entry) => {
+            const indicator = entry.querySelector(".sort-indicator");
+            indicator.textContent = entry === button ? (sortDirection === 1 ? "↑" : "↓") : "↕";
+            entry.setAttribute("aria-sort", entry === button ? (sortDirection === 1 ? "ascending" : "descending") : "none");
+          });
+          currentPage = 1;
+          render();
+        });
+      });
+
+      inventoryBody.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+        const row = button.closest("tr");
+        const item = items.find((entry) => entry.article === row.dataset.article);
+        if (!item) return;
+
+        if (button.dataset.action === "view") {
+          setDialog("Detalle del artículo", `${item.article} · ${item.name}`, createDetails(item));
+        } else if (button.dataset.action === "edit") {
+          editItem(item);
+        } else if (button.dataset.action === "delete") {
+          deleteArticle = item.article;
+          const content = document.createElement("div");
+          content.className = "detail-value";
+          content.textContent = `¿Deseas eliminar ${item.article} — ${item.name}? Esta acción quitará el artículo de la tabla.`;
+          const actions = document.createElement("div");
+          actions.className = "dialog-actions";
+          const cancel = document.createElement("button");
+          cancel.type = "button";
+          cancel.className = "secondary-button";
+          cancel.dataset.closeDialog = "";
+          cancel.textContent = "Cancelar";
+          const confirm = document.createElement("button");
+          confirm.type = "button";
+          confirm.className = "danger-button";
+          confirm.textContent = "Eliminar artículo";
+          confirm.addEventListener("click", () => {
+            const index = items.findIndex((entry) => entry.article === deleteArticle);
+            if (index >= 0) {
+              const [removed] = items.splice(index, 1);
+              statusMessage.textContent = `Se eliminó ${removed.article} del inventario de demostración.`;
+              currentPage = Math.min(currentPage, Math.max(1, Math.ceil(visibleItems().length / pageSize)));
+              render();
+            }
+            itemDialog.close();
+          });
+          actions.append(cancel, confirm);
+          const wrapper = document.createElement("div");
+          wrapper.append(content, actions);
+          setDialog("Confirmar eliminación", "Esta acción no se puede deshacer en esta vista.", wrapper);
+        }
+      });
+
+      dialogContent.addEventListener("click", (event) => {
+        if (event.target.closest("[data-close-dialog]")) itemDialog.close();
+      });
+
+      itemDialog.addEventListener("click", (event) => {
+        if (event.target.closest("[data-close-dialog]")) itemDialog.close();
+        if (event.target === itemDialog) itemDialog.close();
+      });
+
+      const sidebar = document.querySelector(".sidebar");
+      const menuToggle = document.querySelector(".menu-toggle");
+      const menuBackdrop = document.querySelector(".menu-backdrop");
+
+      function setMenuOpen(isOpen) {
+        sidebar.classList.toggle("is-open", isOpen);
+        menuBackdrop.classList.toggle("is-visible", isOpen);
+        menuToggle.setAttribute("aria-expanded", String(isOpen));
+        menuToggle.setAttribute("aria-label", isOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación");
+        document.body.classList.toggle("menu-open", isOpen);
+      }
+
+      menuToggle.addEventListener("click", () => {
+        setMenuOpen(menuToggle.getAttribute("aria-expanded") !== "true");
+      });
+
+      menuBackdrop.addEventListener("click", () => setMenuOpen(false));
+
+      sidebar.addEventListener("click", (event) => {
+        if (event.target.closest("a")) setMenuOpen(false);
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") setMenuOpen(false);
+      });
+
+      window.addEventListener("resize", () => {
+        if (window.innerWidth > 760) setMenuOpen(false);
+      });
+
+      render();
+    </script>
+  </body>
+</html>
