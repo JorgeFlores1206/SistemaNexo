@@ -575,14 +575,6 @@
         white-space: nowrap;
       }
 
-      .article-name {
-        display: block;
-        margin-top: 3px;
-        color: #8a968e;
-        font-size: 9px;
-        white-space: nowrap;
-      }
-
       .description-cell {
         min-width: 175px;
       }
@@ -1147,8 +1139,8 @@
               <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m7 10 5 5 5-5H7Z" /></svg>
             </summary>
             <div class="subnav">
-              <a href="dashboard.html#roles">Roles y privilegios</a>
-              <a href="dashboard.html#usuarios">Usuarios</a>
+              <a href="roles.html">Roles y privilegios</a>
+              <a href="usuarios.html">Usuarios</a>
             </div>
           </details>
 
@@ -1160,10 +1152,10 @@
               Autenticación
               <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m7 10 5 5 5-5H7Z" /></svg>
             </summary>
-            <div class="subnav"><a href="dashboard.html#cambio-contrasena">Cambio de contraseña</a></div>
+            <div class="subnav"><a href="cambiar-contrasena.html">Cambio de contraseña</a></div>
           </details>
 
-          <a class="nav-link" href="dashboard.html#bitacora">
+          <a class="nav-link" href="bitacora.html">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M13 3a9 9 0 1 0 8.94 10h-2.02A7 7 0 1 1 13 5v4l5-5-5-5v4Zm-1 5v5l4.25 2.52 1.03-1.72L14 12V8h-2Z" />
             </svg>
@@ -1244,7 +1236,7 @@
                 <thead>
                   <tr>
                     <th scope="col"><button class="sort-button" data-sort="article" type="button">Artículo <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
-                    <th scope="col"><button class="sort-button" data-sort="description" type="button">Descripción del artículo <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
+                    <th scope="col"><button class="sort-button" data-sort="name" type="button">Descripción del artículo <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
                     <th scope="col"><button class="sort-button" data-sort="status" type="button">Estado <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
                     <th scope="col"><button class="sort-button" data-sort="onHand" type="button">On hand <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
                     <th scope="col"><button class="sort-button" data-sort="balance" type="button">Saldo <span class="sort-indicator" aria-hidden="true">↕</span></button></th>
@@ -1401,12 +1393,9 @@
             const articleCode = document.createElement("span");
             articleCode.className = "article-code";
             articleCode.textContent = item.article;
-            const articleName = document.createElement("span");
-            articleName.className = "article-name";
-            articleName.textContent = item.name;
-            articleCell.append(articleCode, articleName);
+            articleCell.append(articleCode);
             row.append(articleCell);
-            row.append(createCell(item.description, "description-cell"));
+            row.append(createCell(item.name, "description-cell"));
 
             const statusCell = document.createElement("td");
             const badge = document.createElement("span");

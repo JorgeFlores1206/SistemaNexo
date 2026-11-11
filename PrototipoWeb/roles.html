@@ -1,0 +1,961 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Roles y privilegios de acceso de Nexo." />
+    <meta name="theme-color" content="#123d32" />
+    <title>Roles y privilegios | Nexo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        --pine-950: #123d32;
+        --pine-900: #174a3b;
+        --pine-800: #1d5a48;
+        --pine-700: #28735a;
+        --green-100: #e7f2eb;
+        --ink: #1d2b24;
+        --muted: #718078;
+        --border: #e5ece7;
+        --canvas: #f6f8f6;
+        --sidebar-width: 258px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        background: var(--canvas);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      button,
+      a,
+      summary {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .app-shell {
+        min-height: 100vh;
+      }
+
+      .menu-toggle,
+      .menu-backdrop {
+        display: none;
+      }
+
+      .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 5;
+        display: flex;
+        width: var(--sidebar-width);
+        flex-direction: column;
+        padding: 27px 18px 20px;
+        color: #e8f2ec;
+        background:
+          radial-gradient(ellipse at 0% 0%, rgb(91 145 111 / 20%), transparent 42%),
+          var(--pine-950);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 11px;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        place-items: center;
+        border: 1px solid rgb(255 255 255 / 14%);
+        border-radius: 13px;
+        color: #fff;
+        background: rgb(255 255 255 / 10%);
+      }
+
+      .brand-mark svg {
+        width: 29px;
+        height: 29px;
+      }
+
+      .brand-name {
+        display: block;
+        color: #fff;
+        font-size: 25px;
+        font-weight: 750;
+        letter-spacing: -1px;
+        line-height: 1;
+      }
+
+      .brand-caption {
+        display: block;
+        margin-top: 5px;
+        color: #b6cfc0;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 1.15px;
+        text-transform: uppercase;
+      }
+
+      .side-label {
+        margin: 38px 12px 12px;
+        color: #98b6a4;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.3px;
+        text-transform: uppercase;
+      }
+
+      .side-nav {
+        display: grid;
+        gap: 5px;
+      }
+
+      .nav-link,
+      .nav-group summary {
+        display: flex;
+        min-height: 44px;
+        align-items: center;
+        gap: 12px;
+        padding: 0 12px;
+        border-radius: 9px;
+        color: #c8d9ce;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        list-style: none;
+      }
+
+      .nav-group summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .nav-link:hover,
+      .nav-group summary:hover {
+        color: #fff;
+        background: rgb(255 255 255 / 8%);
+      }
+
+      .nav-link.active,
+      .subnav a.active {
+        color: #fff;
+        background: #28664f;
+        box-shadow: inset 3px 0 #a6d2b4;
+      }
+
+      .nav-icon {
+        width: 19px;
+        height: 19px;
+        flex: 0 0 19px;
+        color: #a7c4b1;
+      }
+
+      .chevron {
+        width: 16px;
+        height: 16px;
+        margin-left: auto;
+        color: #93af9e;
+        transition: transform 150ms ease;
+      }
+
+      .nav-group[open] .chevron {
+        transform: rotate(180deg);
+      }
+
+      .subnav {
+        display: grid;
+        gap: 2px;
+        margin: 3px 0 5px 39px;
+        padding-left: 12px;
+        border-left: 1px solid rgb(196 220 202 / 22%);
+      }
+
+      .subnav a {
+        padding: 9px 10px;
+        border-radius: 6px;
+        color: #b5cbbd;
+        font-size: 12px;
+        line-height: 1.3;
+      }
+
+      .subnav a:hover {
+        color: #fff;
+        background: rgb(255 255 255 / 8%);
+      }
+
+      .profile-link {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-top: auto;
+        padding: 15px 9px 0;
+        border-top: 1px solid rgb(255 255 255 / 13%);
+      }
+
+      .avatar {
+        display: grid;
+        width: 37px;
+        height: 37px;
+        flex: 0 0 37px;
+        place-items: center;
+        border-radius: 50%;
+        color: var(--pine-950);
+        background: #d3ead9;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .profile-name,
+      .profile-role {
+        display: block;
+      }
+
+      .profile-name {
+        color: #fff;
+        font-size: 11px;
+        font-weight: 650;
+      }
+
+      .profile-role {
+        margin-top: 3px;
+        color: #aac3b2;
+        font-size: 10px;
+      }
+
+      .main-area {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        margin-left: var(--sidebar-width);
+      }
+
+      .topbar {
+        display: flex;
+        min-height: 68px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 0 clamp(20px, 3vw, 42px);
+        border-bottom: 1px solid var(--border);
+        background: #fff;
+      }
+
+      .breadcrumb {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .breadcrumb strong {
+        color: var(--pine-800);
+        font-weight: 650;
+      }
+
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .today {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .topbar-avatar {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border: 2px solid #e0ebe3;
+        border-radius: 50%;
+        color: var(--pine-800);
+        background: #d7e8dc;
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .content {
+        width: min(100%, 1600px);
+        flex: 1;
+        margin: 0 auto;
+        padding: 32px clamp(20px, 3vw, 42px) 38px;
+      }
+
+      .page-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        margin: 0 0 7px;
+        color: var(--pine-700);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(24px, 3vw, 30px);
+        font-weight: 700;
+        letter-spacing: -0.8px;
+      }
+
+      .page-subtitle {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .summary-card {
+        display: flex;
+        min-width: 165px;
+        align-items: center;
+        gap: 11px;
+        padding: 13px 15px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: #fff;
+      }
+
+      .summary-icon {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        place-items: center;
+        border-radius: 9px;
+        color: var(--pine-800);
+        background: var(--green-100);
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .summary-value {
+        display: block;
+        color: var(--ink);
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .summary-label {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .table-card {
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        background: #fff;
+        box-shadow: 0 4px 15px rgb(22 57 39 / 4%);
+      }
+
+      .table-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 17px 18px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .toolbar-title h2 {
+        margin: 0;
+        color: #34443b;
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .toolbar-title p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.5;
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 10px;
+      }
+
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .permission {
+        display: inline-flex;
+        min-width: 69px;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 5px 8px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 650;
+        white-space: nowrap;
+      }
+
+      .permission.yes {
+        color: #226144;
+        background: #e8f5ec;
+      }
+
+      .permission.no {
+        color: #738078;
+        background: #f0f3f1;
+      }
+
+      .role-cell {
+        min-width: 210px;
+      }
+
+      .role-name {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #34443b;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .role-badge {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        flex: 0 0 30px;
+        place-items: center;
+        border-radius: 8px;
+        color: var(--pine-800);
+        background: var(--green-100);
+        font-size: 12px;
+      }
+
+      .role-description {
+        margin: 5px 0 0 39px;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.45;
+      }
+
+      .table-scroll {
+        width: 100%;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-color: #b7c8bc #f0f4f1;
+        scrollbar-width: thin;
+      }
+
+      table {
+        width: 100%;
+        min-width: 960px;
+        border-collapse: separate;
+        border-spacing: 0;
+        text-align: center;
+      }
+
+      th {
+        padding: 13px 12px;
+        border-bottom: 1px solid var(--border);
+        color: #718078;
+        background: #f8faf8;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.35px;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      th:first-child,
+      td:first-child {
+        padding-left: 18px;
+        text-align: left;
+      }
+
+      td {
+        padding: 16px 12px;
+        border-bottom: 1px solid #edf1ed;
+        color: #56665c;
+        font-size: 11px;
+        vertical-align: middle;
+      }
+
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      tbody tr:hover td {
+        background: #fbfdfb;
+      }
+
+      .table-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        margin-top: 16px;
+        padding: 13px 15px;
+        border: 1px solid #dcebe1;
+        border-radius: 9px;
+        color: #4b6657;
+        background: #f0f7f2;
+        font-size: 11px;
+        line-height: 1.55;
+      }
+
+      .table-note strong {
+        color: #28593f;
+      }
+
+      .footer {
+        display: flex;
+        min-height: 55px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px clamp(20px, 3vw, 42px);
+        border-top: 1px solid var(--border);
+        color: #87948c;
+        background: #fff;
+        font-size: 10px;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 17px;
+      }
+
+      .footer a:hover {
+        color: var(--pine-700);
+      }
+
+      :focus-visible {
+        outline: 3px solid #8bb9a0;
+        outline-offset: 3px;
+      }
+
+      @media (max-width: 1050px) {
+        :root {
+          --sidebar-width: 228px;
+        }
+      }
+
+      @media (max-width: 760px) {
+        :root {
+          --sidebar-width: 0px;
+        }
+
+        body.menu-open {
+          overflow: hidden;
+        }
+
+        .sidebar {
+          position: fixed;
+          inset: 0 auto 0 0;
+          z-index: 20;
+          width: min(84vw, 310px);
+          min-height: 100vh;
+          min-height: 100dvh;
+          overflow-y: auto;
+          padding: 24px 18px 20px;
+          box-shadow: 16px 0 40px rgb(9 37 26 / 20%);
+          transform: translateX(-105%);
+          transition: transform 220ms ease;
+          visibility: hidden;
+        }
+
+        .sidebar.is-open {
+          transform: translateX(0);
+          visibility: visible;
+        }
+
+        .menu-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 19;
+          display: block;
+          border: 0;
+          background: rgb(13 32 24 / 42%);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 220ms ease;
+          visibility: hidden;
+        }
+
+        .menu-backdrop.is-visible {
+          opacity: 1;
+          pointer-events: auto;
+          visibility: visible;
+        }
+
+        .menu-toggle {
+          display: grid;
+          width: 40px;
+          height: 40px;
+          flex: 0 0 40px;
+          place-items: center;
+          border: 1px solid var(--border);
+          border-radius: 9px;
+          color: var(--pine-800);
+          background: #fff;
+          cursor: pointer;
+        }
+
+        .menu-toggle svg {
+          width: 21px;
+          height: 21px;
+        }
+
+        .main-area {
+          margin-left: 0;
+        }
+
+        .topbar {
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          min-height: 62px;
+          justify-content: flex-start;
+          padding: 10px 16px;
+        }
+
+        .breadcrumb {
+          flex: 1;
+        }
+
+        .content {
+          padding: 25px 16px 30px;
+        }
+
+        .footer {
+          padding: 13px 16px;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .today {
+          display: none;
+        }
+
+        .page-heading {
+          margin-bottom: 18px;
+        }
+
+        .summary-card {
+          min-width: calc(50% - 5px);
+          flex: 1;
+        }
+
+        .table-toolbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .footer {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 9px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="side-navigation" aria-label="Navegación principal">
+        <a class="brand" href="dashboard.html" aria-label="Nexo, ir al dashboard">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M16 3 6.5 15h5L5 23h8v6h6v-6h8l-6.5-8h5L16 3Z" fill="currentColor" />
+            </svg>
+          </span>
+          <span>
+            <span class="brand-name">Nexo</span>
+            <span class="brand-caption">Gestión inteligente</span>
+          </span>
+        </a>
+
+        <p class="side-label">Menú principal</p>
+        <nav class="side-nav" aria-label="Secciones">
+          <details class="nav-group">
+            <summary>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z" />
+              </svg>
+              Dashboard
+              <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m7 10 5 5 5-5H7Z" /></svg>
+            </summary>
+            <div class="subnav"><a href="dashboard.html">Vista general</a></div>
+          </details>
+
+          <a class="nav-link" href="perfil.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z" />
+            </svg>
+            Perfil
+          </a>
+
+          <a class="nav-link" href="inventario.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="m21 8-9-5-9 5v8l9 5 9-5V8Zm-9-2.69L16.74 8 12 10.64 7.26 8 12 5.31ZM5 9.7l6 3.33v5.24l-6-3.33V9.7Zm8 8.57v-5.24l6-3.33v5.24l-6 3.33Z" />
+            </svg>
+            Inventario
+          </a>
+
+          <details class="nav-group" open>
+            <summary>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4Zm0 4.18 5 2.22v3.6c0 3.74-2.15 7.34-5 8.64-2.85-1.3-5-4.9-5-8.64V7.4l5-2.22Z" />
+              </svg>
+              Seguridad
+              <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m7 10 5 5 5-5H7Z" /></svg>
+            </summary>
+            <div class="subnav">
+              <a class="active" href="roles.html" aria-current="page">Roles y privilegios</a>
+              <a href="usuarios.html">Usuarios</a>
+            </div>
+          </details>
+
+          <details class="nav-group">
+            <summary>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V11a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 5a3 3 0 0 1 6 0v3H9V6Zm3 11a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z" />
+              </svg>
+              Autenticación
+              <svg class="chevron" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m7 10 5 5 5-5H7Z" /></svg>
+            </summary>
+            <div class="subnav"><a href="cambiar-contrasena.html">Cambio de contraseña</a></div>
+          </details>
+
+          <a class="nav-link" href="bitacora.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M13 3a9 9 0 1 0 8.94 10h-2.02A7 7 0 1 1 13 5v4l5-5-5-5v4Zm-1 5v5l4.25 2.52 1.03-1.72L14 12V8h-2Z" />
+            </svg>
+            Bitácora
+          </a>
+
+          <a class="nav-link" href="login.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M10 17v-3H3v-4h7V7l5 5-5 5Zm9-14H5a2 2 0 0 0-2 2v3h2V5h14v14H5v-3H3v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z" />
+            </svg>
+            Cerrar sesión
+          </a>
+        </nav>
+
+        <a class="profile-link" href="perfil.html">
+          <span class="avatar" aria-hidden="true">CM</span>
+          <span>
+            <span class="profile-name">Carlos Mendoza</span>
+            <span class="profile-role">Administrador</span>
+          </span>
+        </a>
+      </aside>
+      <button class="menu-backdrop" type="button" aria-label="Cerrar menú" tabindex="-1"></button>
+
+      <div class="main-area">
+        <header class="topbar">
+          <button class="menu-toggle" type="button" aria-label="Abrir menú de navegación" aria-controls="side-navigation" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <p class="breadcrumb">Nexo <span aria-hidden="true">/</span> <strong>Roles y privilegios</strong></p>
+          <div class="topbar-right">
+            <span class="today">Módulo de seguridad</span>
+            <span class="topbar-avatar" aria-label="Carlos Mendoza">CM</span>
+          </div>
+        </header>
+
+        <main class="content">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">Seguridad y acceso</p>
+              <h1>Roles y privilegios</h1>
+              <p class="page-subtitle">Consulta los permisos asignados a cada rol dentro del sistema.</p>
+            </div>
+          </div>
+
+          <section class="summary" aria-label="Resumen de roles">
+            <div class="summary-card">
+              <span class="summary-icon" aria-hidden="true">♙</span>
+              <span><strong class="summary-value">2</strong><span class="summary-label">Roles definidos</span></span>
+            </div>
+            <div class="summary-card">
+              <span class="summary-icon" aria-hidden="true">✓</span>
+              <span><strong class="summary-value">1</strong><span class="summary-label">Rol con acceso total</span></span>
+            </div>
+            <div class="summary-card">
+              <span class="summary-icon" aria-hidden="true">⌑</span>
+              <span><strong class="summary-value">3</strong><span class="summary-label">Áreas de parametrización</span></span>
+            </div>
+          </section>
+
+          <section class="table-card" aria-labelledby="table-title">
+            <div class="table-toolbar">
+              <div class="toolbar-title">
+                <h2 id="table-title">Matriz de permisos</h2>
+                <p id="table-description">El administrador tiene acceso completo. El usuario solo puede acceder a parametrización.</p>
+              </div>
+              <div class="legend" aria-label="Leyenda de permisos">
+                <span><span class="permission yes" aria-hidden="true">✓</span> Permitido</span>
+                <span><span class="permission no" aria-hidden="true">—</span> Sin acceso</span>
+              </div>
+            </div>
+
+            <div class="table-scroll" tabindex="0" aria-label="Matriz de permisos; desplaza horizontalmente para ver todas las columnas">
+              <table aria-describedby="table-description">
+                <thead>
+                  <tr>
+                    <th scope="col" rowspan="2">Rol</th>
+                    <th scope="col" rowspan="2">Dashboard</th>
+                    <th scope="colgroup" colspan="3">Parametrización</th>
+                    <th scope="colgroup" colspan="2">Seguridad</th>
+                    <th scope="col" rowspan="2">Bitácora</th>
+                  </tr>
+                  <tr>
+                    <th scope="col">Catálogos</th>
+                    <th scope="col">Clientes</th>
+                    <th scope="col">Inventario</th>
+                    <th scope="col">Usuarios</th>
+                    <th scope="col">Roles y privilegios</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="role-cell">
+                      <div class="role-name"><span class="role-badge" aria-hidden="true">♙</span> Administrador</div>
+                      <p class="role-description">Acceso completo a todos los módulos y funciones.</p>
+                    </td>
+                    <td><span class="permission yes" aria-label="Permitido">✓ Acceso</span></td>
+                    <td><span class="permission yes" aria-label="Permitido">✓ Acceso</span></td>
+                    <td><span class="permission yes" aria-label="Permitido">✓ Acceso</span></td>
+                    <td><span class="permission yes" aria-label="Permitido">✓ Acceso</span></td>
+                    <td><span class="permission yes" aria-label="Permitido">✓ Acceso</span></td>
+                    <td><span class="permission yes" aria-label="Permitido">✓ Acceso</span></td>
+                    <td><span class="permission yes" aria-label="Permitido">✓ Acceso</span></td>
+                  </tr>
+                  <tr>
+                    <td class="role-cell">
+                      <div class="role-name"><span class="role-badge" aria-hidden="true">♙</span> Usuario</div>
+                      <p class="role-description">Acceso limitado a tareas de parametrización.</p>
+                    </td>
+                    <td><span class="permission no" aria-label="Sin acceso">— Sin acceso</span></td>
+                    <td><span class="permission yes" aria-label="Permitido">✓ Acceso</span></td>
+                    <td><span class="permission yes" aria-label="Permitido">✓ Acceso</span></td>
+                    <td><span class="permission yes" aria-label="Permitido">✓ Acceso</span></td>
+                    <td><span class="permission no" aria-label="Sin acceso">— Sin acceso</span></td>
+                    <td><span class="permission no" aria-label="Sin acceso">— Sin acceso</span></td>
+                    <td><span class="permission no" aria-label="Sin acceso">— Sin acceso</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="table-note">
+            <span aria-hidden="true">ⓘ</span>
+            <span><strong>Acceso protegido:</strong> los usuarios no pueden consultar ni administrar usuarios, roles, privilegios o la bitácora. Esas funciones están reservadas al administrador.</span>
+          </aside>
+        </main>
+
+        <footer class="footer">
+          <span>© 2025 Nexo. Todos los derechos reservados.</span>
+          <nav class="footer-links" aria-label="Enlaces del pie de página">
+            <a href="#privacidad">Privacidad</a>
+            <a href="#ayuda">Ayuda</a>
+          </nav>
+        </footer>
+      </div>
+    </div>
+
+    <script>
+      const sidebar = document.querySelector(".sidebar");
+      const menuToggle = document.querySelector(".menu-toggle");
+      const menuBackdrop = document.querySelector(".menu-backdrop");
+
+      function setMenuOpen(isOpen) {
+        sidebar.classList.toggle("is-open", isOpen);
+        menuBackdrop.classList.toggle("is-visible", isOpen);
+        menuToggle.setAttribute("aria-expanded", String(isOpen));
+        menuToggle.setAttribute(
+          "aria-label",
+          isOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación",
+        );
+        document.body.classList.toggle("menu-open", isOpen);
+      }
+
+      menuToggle.addEventListener("click", () => {
+        setMenuOpen(menuToggle.getAttribute("aria-expanded") !== "true");
+      });
+
+      menuBackdrop.addEventListener("click", () => setMenuOpen(false));
+
+      sidebar.addEventListener("click", (event) => {
+        if (event.target.closest("a")) {
+          setMenuOpen(false);
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          setMenuOpen(false);
+        }
+      });
+
+      window.addEventListener("resize", () => {
+        if (window.innerWidth > 760) {
+          setMenuOpen(false);
+        }
+      });
+    </script>
+  </body>
+</html>
