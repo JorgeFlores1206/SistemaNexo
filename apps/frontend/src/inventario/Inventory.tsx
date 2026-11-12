@@ -1,0 +1,13 @@
+import { useEffect, useState } from "react";
+import type { InventoryProduct } from "@nexo/contracts";
+import { obtenerInventario } from "./api";
+
+export function Inventory() {
+  const [productos, setProductos] = useState<InventoryProduct[]>([]);
+  const [buscar, setBuscar] = useState("");
+  const [estado, setEstado] = useState("Todos los estados");
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => { let activo = true; setCargando(true); void obtenerInventario(buscar, estado).then((result) => { if (activo) setProductos(result.productos); }).catch(() => { if (activo) setError("No se pudo cargar el inventario."); }).finally(() => { if (activo) setCargando(false); }); return () => { activo = false; }; }, [buscar, estado]);
+  return <><div className="toolbar"><label className="search">⌕<input value={buscar} onChange={(event) => setBuscar(event.target.value)} placeholder="Buscar artículo o descripción..." aria-label="Buscar inventario" /></label><select value={estado} onChange={(event) => setEstado(event.target.value)} aria-label="Filtrar estado"><option>Todos los estados</option><option>Neutro</option><option>Ofertar</option><option>Vencido + Devolución</option><option>Vencido + Ofertar</option></select><button className="button primary" type="button" disabled>＋ Nuevo artículo</button></div>{error && <p role="alert">{error}</p>}{cargando ? <p role="status">Cargando inventario...</p> : <article className="panel table-panel"><div className="panel-heading"><div><h2>Artículos registrados</h2><p>{productos.length} artículos encontrados</p></div><button className="button secondary" type="button" disabled>⇩ Importar Excel</button></div>{productos.length === 0 ? <p className="empty-state">No hay artículos que coincidan con la búsqueda.</p> : <div className="table-scroll"><table><thead><tr>{["Artículo", "Descripción del artículo", "Estado", "On hand", "Saldo", "Trazabilidad", "UOM primaria", "Laboratorio", "Marca", "Política devolución"].map((head) => <th key={head}>{head}</th>)}</tr></thead><tbody>{productos.map((product) => <tr key={product.id}><td>{product.codigo}</td><td>{product.nombre}</td><td><span className={`badge ${product.estadoCalculado === "Neutro" ? "green" : "yellow"}`}>{product.estadoCalculado}</span></td><td>{product.onHand}</td><td>{product.saldo}</td><td>{product.trazabilidad ?? "—"}</td><td>{product.uomPrimaria ?? "—"}</td><td>{product.laboratorio ?? "—"}</td><td>{product.marca ?? "—"}</td><td>{product.politicaDevolucion ?? "Sin política"}</td></tr>)}</tbody></table></div>}</article>}</>;
+}

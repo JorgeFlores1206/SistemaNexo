@@ -1,113 +1,71 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: Spec 011 — Reporte mensual anticipado de vencimientos próximos
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/speckit-plan` command; its definition describes the execution workflow.
+**Branch**: `011-reportes-programados` | **Date**: 2026-11-12 | **Spec**: `spec.md`
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+Nexo generará el último día calendario de cada mes un reporte para el primer día del mes siguiente, usando la misma fecha de negocio y las mismas reglas de estado/alerta del inventario. El backend persistirá una generación única por mes, sus filas y el resultado de ejecución; el frontend permitirá al Administrador consultar los resultados exitosos, vacíos o fallidos.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
+**Language/Version**: TypeScript 5.9.3, Node.js >=24 <25
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]
+**Primary Dependencies**: NestJS 11.2.7, Prisma 6.19.3, PostgreSQL/Supabase, Zod 4.6.7, React 19.3.0, Vite 8.3.4
 
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
+**Storage**: PostgreSQL administrado en Supabase, únicamente mediante Prisma y esquema `nexo`
 
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
+**Testing**: TypeScript build/lint existentes; se añadirán pruebas Vitest para frontend y pruebas de dominio/backend cuando la infraestructura de tests esté disponible
 
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]
+**Target Platform**: API NestJS y SPA React desplegadas como proyectos separados en Vercel
 
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
+**Project Type**: Aplicación web monorepo con `apps/backend`, `apps/frontend` y `packages/contracts`
 
-**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]
+**Performance Goals**: Consulta administrativa con paginación o límite seguro; generación consistente para el inventario vigente al cierre del mes anterior
 
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]
+**Constraints**: Sin acceso directo del navegador a la base de datos; autorización en backend; fechas calendario y una sola fecha de negocio; no correo, SMS, push ni descarga automática
 
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]
-
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Scale/Scope**: Inventario administrativo de Nexo; una generación vigente por mes de referencia y una bitácora resumida por ejecución
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-[Gates determined based on constitution file]
+- **Principle I — Inventory-Centered Product Model**: PASS. El plan reutiliza la fecha efectiva, estados y alerta “Pronto a vencer”; “Dañado” permanece separado.
+- **Principle II — Prototype-Aligned Data Contract**: PASS. No se modifica el contrato de importación ni se inventan fechas de vencimiento.
+- **Principle III — Security and Role-Based Access**: PASS. Consulta y bitácora quedan protegidas para Administrador en backend.
+- **Principle IV — Data Integrity and Traceability**: PASS. Restricción única por mes, transacción de generación y bitácora para éxito, vacío y fallo.
+- **Principle V — Approved Technologies and Verifiable Delivery**: PASS. Se usan únicamente tecnologías documentadas en `tecnologias/`.
 
 ## Project Structure
 
-### Documentation (this feature)
-
 ```text
-specs/[###-feature]/
-├── plan.md              # This file (/speckit-plan command output)
-├── research.md          # Phase 0 output (/speckit-plan command)
-├── data-model.md        # Phase 1 output (/speckit-plan command)
-├── quickstart.md        # Phase 1 output (/speckit-plan command)
-├── contracts/           # Phase 1 output (/speckit-plan command)
-└── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
+specs/011-reportes-programados/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/reportes-programados-contract.md
+└── tasks.md
+
+apps/backend/src/reportes-programados/
+├── reportes-programados.module.ts
+├── reportes-programados.controller.ts
+├── reportes-programados.service.ts
+├── generacion-mensual.service.ts
+└── bitacora-reportes.service.ts
+
+apps/backend/prisma/
+├── schema.prisma
+└── migrations/
+
+apps/frontend/src/reportes-programados/
+├── ReporteMensualVencimientos.tsx
+├── ResultadoGeneracion.tsx
+└── api.ts
+
+packages/contracts/src/index.ts
 ```
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
-
-```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
-```
-
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Organización por dominio funcional, alineada con el monorepo real. La API contiene reglas, persistencia y autorización; el frontend solo consulta la API; los contratos Zod son compartidos.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+No hay violaciones constitucionales que justificar.

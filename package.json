@@ -1,6 +1,7 @@
 {
   "name": "nexo",
   "private": true,
+  "packageManager": "npm@11.19.0",
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {"build": "turbo run build", "lint": "turbo run lint", "test": "turbo run test", "format:check": "prettier --check ."},
   "devDependencies": {"prettier": "3.9.10", "turbo": "2.11.8", "typescript": "5.9.3"},

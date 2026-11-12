@@ -103,8 +103,8 @@ acceder a cada módulo, verificando los permisos permitidos y denegados.
 - El Administrador intenta asignar un rol distinto de Administrador o Usuario.
 - Una cuenta existente tiene productos, importaciones o eventos de bitácora asociados al desactivarla.
 - Los permisos cambian mientras la cuenta mantiene una sesión iniciada.
-- Un Usuario intenta acceder a Usuarios, Roles, Clientes, Dashboard, consultas de productos o
-  Bitácora directamente.
+- Un Usuario intenta acceder a Usuarios, Roles, Clientes o Bitácora directamente; el sistema debe
+  denegar esas áreas sin afectar su acceso autorizado al inventario y panel.
 
 ## Requirements *(mandatory)*
 
@@ -160,6 +160,11 @@ acceder a cada módulo, verificando los permisos permitidos y denegados.
   MUST poder consultar ni administrar Clientes hasta que una Spec apruebe expresamente esa
   capacidad.
 
+- **FR-018**: La matriz de permisos de esta Spec MUST ser la referencia para las operaciones
+  protegidas de las Specs 004, 006, 007, 008, 009, 010 y posteriores. Una Spec funcional puede
+  restringir una operación adicional, pero MUST NOT conceder al rol Usuario acceso administrativo
+  que esta matriz reserva al Administrador.
+
 ### Key Entities *(include if feature involves data)*
 
 - **Cuenta de usuario**: Identidad que puede iniciar sesión, con nombre, correo único, rol,
@@ -205,3 +210,6 @@ acceder a cada módulo, verificando los permisos permitidos y denegados.
   por desactivación reversible antes de implementar el flujo.
 - La gestión de Clientes queda fuera del alcance inicial de Nexo para todos los roles hasta que
   una Spec la apruebe.
+- El acceso del rol Usuario al inventario y panel incluye las consultas funcionales aprobadas por
+  sus Specs, pero no convierte al Usuario en Administrador ni le permite consultar bitácoras o
+  ejecutar ajustes físicos.

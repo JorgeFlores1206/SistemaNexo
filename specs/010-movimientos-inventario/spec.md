@@ -5,6 +5,10 @@
 **Status**: Draft  
 **Input**: User description: "Registrar el resultado del inventario físico en Saldo mediante ajustes."
 
+**Dependencies**: Spec 005 define los roles y permisos; Spec 008 define el registro de productos;
+Spec 009 define las cantidades y el campo `Saldo`; las tres son referencias obligatorias para
+implementar esta función.
+
 ## Clarifications
 
 ### Session 2026-11-11
@@ -62,6 +66,12 @@ Como Administrador, necesito consultar y filtrar los ajustes para revisar los re
 - **FR-010**: Cada ajuste confirmado o rechazado MUST registrarse en la bitácora conforme a las reglas vigentes, sin guardar contraseñas ni secretos.
 - **FR-011**: Esta Spec MUST NOT registrar entradas, salidas, ventas, compras, recepciones ni transferencias entre almacenes.
 - **FR-012**: El sistema MUST impedir el doble envío de un mismo ajuste y MUST evitar duplicar la operación.
+- **FR-013**: La autorización MUST validarse en la operación protegida conforme a la matriz de la
+  Spec 005; el rol Usuario MUST poder consultar el inventario autorizado, pero MUST NOT registrar
+  ni consultar ajustes físicos.
+- **FR-014**: El artículo, `Saldo` y estado de actividad utilizados por esta Spec MUST respetar el
+  modelo vigente de las Specs 008 y 009. El ajuste MUST operar sobre un artículo existente y no
+  MUST crear ni modificar un producto implícitamente.
 
 ### Key Entities
 
@@ -84,6 +94,10 @@ Como Administrador, necesito consultar y filtrar los ajustes para revisar los re
 - `On hand` conserva su significado de cantidad física de referencia y no se modifica mediante este flujo.
 - Los ajustes son la única operación incluida en esta Spec; entradas y salidas requieren una Spec independiente.
 - La cantidad encontrada se registra como entero no negativo.
+- El Administrador responsable se identifica mediante la cuenta autenticada y su rol vigente de
+  la Spec 005; no se acepta un responsable indicado libremente por la persona usuaria.
+- El registro de bitácora de ajustes se integra con la bitácora administrativa definida por la
+  Spec 005 y conserva el resultado rechazado o confirmado sin almacenar secretos.
 
 ## Out of Scope
 

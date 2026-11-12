@@ -1,1 +1,1 @@
-{"extends":"../../tsconfig.base.json","compilerOptions":{"jsx":"react-jsx","module":"ESNext","moduleResolution":"Bundler","noEmit":true},"include":["src/**/*.ts","src/**/*.tsx"]}
+{"extends":"../../tsconfig.base.json","compilerOptions":{"jsx":"react-jsx","module":"ESNext","moduleResolution":"Bundler","noEmit":true,"baseUrl":".","paths":{"@nexo/contracts":["../../packages/contracts/src/index.ts"]}},"include":["src/**/*.ts","src/**/*.tsx"]}

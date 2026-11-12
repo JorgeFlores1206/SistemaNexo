@@ -1,4 +1,6 @@
-generator client { provider = "prisma-client-js" }
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider  = "postgresql"
@@ -7,4 +9,122 @@ datasource db {
   schemas   = ["nexo"]
 }
 
-// Los modelos funcionales se añadirán en las Specs de inventario correspondientes.
+enum EstadoGeneracionReporte {
+  EN_PROCESO
+  GENERADO
+  VACIO
+  FALLIDO
+
+  @@schema("nexo")
+}
+
+enum RolUsuario {
+  ADMINISTRADOR
+  USUARIO
+
+  @@schema("nexo")
+}
+
+model Usuario {
+  id          String   @id @default(uuid()) @db.Uuid
+  nombre      String
+  correo      String   @unique
+  rol         RolUsuario
+  activo      Boolean  @default(true)
+  passwordHash String?
+  debeCambiarPassword Boolean @default(true)
+  ultimoAcceso DateTime?
+  creadoEn    DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  @@index([activo, rol])
+  @@schema("nexo")
+}
+
+model BitacoraEvento {
+  id             String   @id @default(uuid()) @db.Uuid
+  fecha          DateTime @default(now())
+  actor          String
+  accion         String
+  detalle        String
+  resultado      String
+  cuentaAfectada String?
+
+  @@index([fecha])
+  @@index([accion])
+  @@schema("nexo")
+}
+
+model Producto {
+  id                 String   @id @default(uuid()) @db.Uuid
+  codigo             String   @unique
+  nombre             String
+  politicaDevolucion String?
+  fechaEfectiva      DateTime? @db.Date
+  vencimientoOriginal DateTime? @db.Date
+  estadoCalculado    String   @default("Neutro")
+  danado             Boolean  @default(false)
+  onHand             Int      @default(0)
+  saldo              Int      @default(0)
+  trazabilidad       String?
+  uomPrimaria        String?
+  laboratorio        String?
+  marca              String?
+  observacion        String?
+  filasReporte       ProductoProximoAVencer[]
+  creadoEn           DateTime @default(now())
+  actualizadoEn      DateTime @updatedAt
+
+  @@schema("nexo")
+}
+
+model ReporteMensualVencimientos {
+  id                 String   @id @default(uuid()) @db.Uuid
+  mesReferencia      DateTime @unique @db.Date
+  fechaNegocio       DateTime @db.Date
+  estadoGeneracion   EstadoGeneracionReporte
+  cantidadIncluida   Int      @default(0)
+  errorCodigo        String?
+  errorMensaje       String?
+  generadoEn         DateTime @default(now())
+  productos          ProductoProximoAVencer[]
+  bitacora           BitacoraReporteMensual[]
+
+  @@index([estadoGeneracion])
+  @@schema("nexo")
+}
+
+model ProductoProximoAVencer {
+  id                  String   @id @default(uuid()) @db.Uuid
+  reporteId           String   @db.Uuid
+  productoId          String   @db.Uuid
+  codigo              String
+  nombre              String
+  politicaDevolucion  String?
+  fechaEfectiva       DateTime? @db.Date
+  vencimientoOriginal DateTime @db.Date
+  fechaRelevante      DateTime @db.Date
+  estadoCalculado     String
+  danado              Boolean
+  diasRestantes       Int
+  reporte             ReporteMensualVencimientos @relation(fields: [reporteId], references: [id], onDelete: Cascade)
+  producto            Producto @relation(fields: [productoId], references: [id])
+
+  @@unique([reporteId, productoId])
+  @@index([reporteId])
+  @@schema("nexo")
+}
+
+model BitacoraReporteMensual {
+  id               String   @id @default(uuid()) @db.Uuid
+  reporteId        String   @db.Uuid
+  mesReferencia    DateTime @db.Date
+  fechaNegocio     DateTime @db.Date
+  resultado        EstadoGeneracionReporte
+  cantidadIncluida Int
+  creadoEn         DateTime @default(now())
+  reporte          ReporteMensualVencimientos @relation(fields: [reporteId], references: [id], onDelete: Cascade)
+
+  @@index([mesReferencia, creadoEn])
+  @@schema("nexo")
+}
