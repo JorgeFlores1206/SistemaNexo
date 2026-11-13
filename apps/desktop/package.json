@@ -1,0 +1,13 @@
+{
+  "name": "@nexo/desktop",
+  "private": true,
+  "version": "1.0.0",
+  "main": "main.cjs",
+  "scripts": {
+    "dev": "electron .",
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^39.1.2"
+  }
+}

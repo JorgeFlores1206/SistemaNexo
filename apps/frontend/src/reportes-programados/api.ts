@@ -5,3 +5,4 @@ export async function obtenerReporte(mesReferencia?: string): Promise<MonthlyRep
   const query = mesReferencia ? `?mesReferencia=${encodeURIComponent(mesReferencia)}` : "";
   return monthlyReportSchema.parse(await apiFetch<unknown>(`/reportes-programados/vencimientos${query}`));
 }
+export async function generarReporte(): Promise<MonthlyReport> { return monthlyReportSchema.parse(await apiFetch<unknown>("/reportes-programados/generar", { method: "POST" })); }

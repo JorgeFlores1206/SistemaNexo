@@ -7,6 +7,7 @@ import { UsuariosModule } from "./usuarios/usuarios.module";
 import { RolesModule } from "./roles/roles.module";
 import { BitacoraModule } from "./bitacora/bitacora.module";
 import { PerfilModule } from "./perfil/perfil.module";
+import { PrismaModule } from "./prisma/prisma.module";
 
-@Module({ imports: [AuthModule, ReportesProgramadosModule, DashboardModule, InventarioModule, UsuariosModule, RolesModule, BitacoraModule, PerfilModule] })
+@Module({ imports: [PrismaModule, AuthModule, ReportesProgramadosModule, DashboardModule, InventarioModule, UsuariosModule, RolesModule, BitacoraModule, PerfilModule] })
 export class AppModule {}

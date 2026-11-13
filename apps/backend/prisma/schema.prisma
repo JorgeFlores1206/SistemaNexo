@@ -3,10 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider  = "sqlite"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-  schemas   = ["nexo"]
 }
 
 enum EstadoGeneracionReporte {
@@ -15,18 +13,16 @@ enum EstadoGeneracionReporte {
   VACIO
   FALLIDO
 
-  @@schema("nexo")
 }
 
 enum RolUsuario {
   ADMINISTRADOR
   USUARIO
 
-  @@schema("nexo")
 }
 
 model Usuario {
-  id          String   @id @default(uuid()) @db.Uuid
+  id          String   @id @default(uuid())
   nombre      String
   correo      String   @unique
   rol         RolUsuario
@@ -36,13 +32,27 @@ model Usuario {
   ultimoAcceso DateTime?
   creadoEn    DateTime @default(now())
   actualizadoEn DateTime @updatedAt
+  sesiones    Sesion[]
+  ajustes     AjusteInventario[]
 
   @@index([activo, rol])
-  @@schema("nexo")
+}
+
+model Sesion {
+  id          String   @id @default(uuid())
+  tokenHash   String   @unique
+  usuarioId   String
+  expiraEn    DateTime
+  revocadaEn  DateTime?
+  creadaEn    DateTime @default(now())
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId, revocadaEn])
+  @@index([expiraEn])
 }
 
 model BitacoraEvento {
-  id             String   @id @default(uuid()) @db.Uuid
+  id             String   @id @default(uuid())
   fecha          DateTime @default(now())
   actor          String
   accion         String
@@ -52,36 +62,51 @@ model BitacoraEvento {
 
   @@index([fecha])
   @@index([accion])
-  @@schema("nexo")
 }
 
 model Producto {
-  id                 String   @id @default(uuid()) @db.Uuid
+  id                 String   @id @default(uuid())
   codigo             String   @unique
   nombre             String
   politicaDevolucion String?
-  fechaEfectiva      DateTime? @db.Date
-  vencimientoOriginal DateTime? @db.Date
-  estadoCalculado    String   @default("Neutro")
+  fechaEfectiva      DateTime?
+  vencimientoOriginal DateTime?
+  estadoCalculado    String?
   danado             Boolean  @default(false)
-  onHand             Int      @default(0)
-  saldo              Int      @default(0)
-  trazabilidad       String?
+  onHand             Int?
+  saldo              Int?
+  activo             Boolean  @default(true)
+  version            Int      @default(1)
+  arqueo             String?
   uomPrimaria        String?
   laboratorio        String?
   marca              String?
-  observacion        String?
   filasReporte       ProductoProximoAVencer[]
+  ajustes            AjusteInventario[]
   creadoEn           DateTime @default(now())
   actualizadoEn      DateTime @updatedAt
 
-  @@schema("nexo")
+}
+
+model AjusteInventario {
+  id            String   @id @default(uuid())
+  productoId    String
+  actorId       String
+  saldoAnterior Int
+  saldoNuevo    Int
+  motivo        String
+  fecha         DateTime @default(now())
+  producto      Producto @relation(fields: [productoId], references: [id], onDelete: Restrict)
+  actor         Usuario  @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([productoId, fecha])
+  @@index([actorId, fecha])
 }
 
 model ReporteMensualVencimientos {
-  id                 String   @id @default(uuid()) @db.Uuid
-  mesReferencia      DateTime @unique @db.Date
-  fechaNegocio       DateTime @db.Date
+  id                 String   @id @default(uuid())
+  mesReferencia      DateTime @unique
+  fechaNegocio       DateTime
   estadoGeneracion   EstadoGeneracionReporte
   cantidadIncluida   Int      @default(0)
   errorCodigo        String?
@@ -91,19 +116,18 @@ model ReporteMensualVencimientos {
   bitacora           BitacoraReporteMensual[]
 
   @@index([estadoGeneracion])
-  @@schema("nexo")
 }
 
 model ProductoProximoAVencer {
-  id                  String   @id @default(uuid()) @db.Uuid
-  reporteId           String   @db.Uuid
-  productoId          String   @db.Uuid
+  id                  String   @id @default(uuid())
+  reporteId           String
+  productoId          String
   codigo              String
   nombre              String
   politicaDevolucion  String?
-  fechaEfectiva       DateTime? @db.Date
-  vencimientoOriginal DateTime @db.Date
-  fechaRelevante      DateTime @db.Date
+  fechaEfectiva       DateTime?
+  vencimientoOriginal DateTime
+  fechaRelevante      DateTime
   estadoCalculado     String
   danado              Boolean
   diasRestantes       Int
@@ -112,19 +136,17 @@ model ProductoProximoAVencer {
 
   @@unique([reporteId, productoId])
   @@index([reporteId])
-  @@schema("nexo")
 }
 
 model BitacoraReporteMensual {
-  id               String   @id @default(uuid()) @db.Uuid
-  reporteId        String   @db.Uuid
-  mesReferencia    DateTime @db.Date
-  fechaNegocio     DateTime @db.Date
+  id               String   @id @default(uuid())
+  reporteId        String
+  mesReferencia    DateTime
+  fechaNegocio     DateTime
   resultado        EstadoGeneracionReporte
   cantidadIncluida Int
   creadoEn         DateTime @default(now())
   reporte          ReporteMensualVencimientos @relation(fields: [reporteId], references: [id], onDelete: Cascade)
 
   @@index([mesReferencia, creadoEn])
-  @@schema("nexo")
 }

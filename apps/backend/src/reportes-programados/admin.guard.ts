@@ -1,11 +1,18 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
+import { SessionService } from "../auth/session.service";
+import type { AuthenticatedRequest } from "../common/auth-context";
 
 @Injectable()
 export class AdminGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest<{ headers?: Record<string, string | undefined> }>();
-    if (!request.headers?.authorization?.startsWith("Bearer ")) throw new UnauthorizedException();
-    if (request.headers["x-role"] !== "Administrador") throw new ForbiddenException();
+  constructor(private readonly sessions: SessionService) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const session = await this.sessions.authenticate(request.headers.authorization);
+    request.user = session.user;
+    request.sessionId = session.sessionId;
+    if (session.user.debeCambiarPassword) throw new ForbiddenException("Debes cambiar tu contraseña antes de continuar");
+    if (session.user.rol !== "ADMINISTRADOR") throw new ForbiddenException("Operación reservada al Administrador");
     return true;
   }
 }

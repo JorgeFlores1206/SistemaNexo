@@ -1,42 +1,93 @@
-import { useState } from "react";
-import "./styles.css";
-import { Dashboard as ConnectedDashboard } from "./dashboard";
-import { Inventory as ConnectedInventory } from "./inventario";
-import { Users as ConnectedUsers } from "./usuarios";
-import { Roles as ConnectedRoles } from "./roles";
-import { Bitacora as ConnectedBitacora } from "./bitacora";
-import { Perfil as ConnectedPerfil } from "./perfil";
+import { useEffect, useMemo, useState } from "react";
+import type { PublicUser } from "@nexo/contracts";
+import { clearSession, getStoredUser, hasSession, updateStoredUser } from "./api/client";
+import { cerrarSesion, iniciarSesion, obtenerSesion } from "./sesion";
+import { Dashboard } from "./dashboard";
+import { Inventory } from "./inventario";
+import { Users } from "./usuarios";
+import { Roles } from "./roles";
+import { Bitacora } from "./bitacora";
+import { Perfil } from "./perfil";
+import { ImportarExcel } from "./inventario/ImportarExcel";
+import { AjustesInventario } from "./inventario/AjustesInventario";
+import { Reportes } from "./reportes-programados/Reportes";
 
-type Screen = "dashboard" | "inventario" | "usuarios" | "roles" | "bitacora" | "perfil" | "contrasena";
+type Screen = "dashboard" | "inventario" | "importar" | "ajustes" | "usuarios" | "roles" | "reportes" | "bitacora" | "perfil" | "contrasena";
 
-const products = [
-  ["AMX-001", "Amoxicilina 500 mg", "Ofertar", "120", "98", "En el mes"],
-  ["PAR-204", "Paracetamol 500 mg", "Pronto a vencer", "80", "72", "1 mes antes"],
-  ["IBU-115", "Ibuprofeno 400 mg", "Neutro", "46", "46", "Sin política"],
-  ["AZI-009", "Azitromicina 500 mg", "Dañado", "18", "12", "2 meses antes"],
-];
+const pageMeta: Record<Screen, { title: string; description: string }> = {
+  dashboard: { title: "Vista general", description: "Un resumen claro para priorizar el trabajo del día." },
+  inventario: { title: "Inventario", description: "Consulta y gestiona los artículos registrados en Nexo." },
+  importar: { title: "Importar Excel", description: "Carga datos del inventario con validación por fila." },
+  ajustes: { title: "Ajustes físicos", description: "Registra el resultado de un inventario físico sobre Saldo." },
+  usuarios: { title: "Usuarios", description: "Administra las cuentas y accesos de Nexo." },
+  roles: { title: "Roles y privilegios", description: "Consulta la matriz de permisos vigente." },
+  reportes: { title: "Reportes programados", description: "Consulta y genera el reporte mensual de vencimientos." },
+  bitacora: { title: "Bitácora de actividad", description: "Revisa las acciones administrativas realizadas en Nexo." },
+  perfil: { title: "Mi perfil", description: "Consulta y administra tu información personal." },
+  contrasena: { title: "Cambiar contraseña", description: "Actualiza tu contraseña para mantener tu cuenta segura." },
+};
 
-function Icon({ children }: { children: string }) { return <span className="icon" aria-hidden="true">{children}</span>; }
+function initials(name: string) { return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "NX"; }
 
-function Sidebar({ screen, navigate }: { screen: Screen; navigate: (next: Screen) => void }) {
-  const item = (id: Screen, label: string, icon: string) => <button className={`nav-item ${screen === id ? "active" : ""}`} onClick={() => navigate(id)} type="button"><Icon>{icon}</Icon><span>{label}</span></button>;
-  return <aside className="sidebar"><div className="brand"><div className="brand-mark">N</div><div><strong>Nexo</strong><small>GESTIÓN DE INVENTARIO</small></div></div><p className="nav-label">MENÚ PRINCIPAL</p><nav>{item("dashboard", "Dashboard", "⌂")}{item("inventario", "Inventario", "▦")}<button className="nav-item" type="button"><Icon>⇩</Icon><span>Importar Excel</span></button></nav><p className="nav-label">ADMINISTRACIÓN</p><nav>{item("usuarios", "Usuarios", "♙")}{item("roles", "Roles y privilegios", "♧")}{item("bitacora", "Bitácora", "◷")}</nav><div className="sidebar-bottom"><button className="profile-mini" type="button" onClick={() => navigate("perfil")}><span className="avatar">CM</span><span><b>Carlos Mendoza</b><small>Administrador</small></span><span>⋮</span></button></div></aside>;
+function Icon({ children }: { children: string }) { return <span className="nav-icon" aria-hidden="true">{children}</span>; }
+
+function Login({ onSuccess }: { onSuccess: (user: PublicUser) => void }) {
+  const [correo, setCorreo] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [cargando, setCargando] = useState(false);
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setError(null); setCargando(true);
+    try { const result = await iniciarSesion(correo, password); onSuccess(result.usuario); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : "No se pudo iniciar sesión."); }
+    finally { setCargando(false); }
+  }
+  return <main className="login-page"><section className="login-card" aria-labelledby="login-title"><div className="login-brand"><span className="brand-mark">N</span><span><strong>Nexo</strong><small>GESTIÓN DE INVENTARIO</small></span></div><div className="login-heading"><p className="eyebrow">ACCESO SEGURO</p><h1 id="login-title">Bienvenido de nuevo</h1><p>Ingresa tus credenciales para continuar.</p></div><form onSubmit={submit} className="stack-form"><label>Correo electrónico<input type="email" value={correo} onChange={(event) => setCorreo(event.target.value)} placeholder="nombre@empresa.com" autoComplete="username" required /></label><label>Contraseña<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Escribe tu contraseña" autoComplete="current-password" required /></label>{error && <p className="form-error" role="alert">{error}</p>}<button className="button primary full-width" type="submit" disabled={cargando}>{cargando ? "Verificando..." : "Iniciar sesión"}</button></form><p className="login-note">Las cuentas son creadas por un Administrador. Si olvidaste tu contraseña, solicita un restablecimiento por el canal definido para tu organización.</p></section></main>;
 }
 
-function Header({ title, subtitle, onMenu }: { title: string; subtitle: string; onMenu: () => void }) { return <header className="topbar"><button className="mobile-menu" type="button" onClick={onMenu} aria-label="Abrir menú">☰</button><div><h1>{title}</h1><p>{subtitle}</p></div><button className="notification" type="button" aria-label="Notificaciones">♧<i /></button></header>; }
+function Sidebar({ screen, user, navigate, logout, open, close }: { screen: Screen; user: PublicUser; navigate: (screen: Screen) => void; logout: () => void; open: boolean; close: () => void }) {
+  const admin = user.rol === "ADMINISTRADOR";
+  const link = (id: Screen, label: string, icon: string) => <button type="button" className={`nav-link ${screen === id ? "active" : ""}`} aria-current={screen === id ? "page" : undefined} onClick={() => { navigate(id); close(); }}><Icon>{icon}</Icon><span>{label}</span></button>;
+  return <><aside className={`sidebar ${open ? "open" : ""}`} id="side-navigation" aria-label="Navegación principal"><div className="brand"><span className="brand-mark">N</span><span><strong>Nexo</strong><small>GESTIÓN DE INVENTARIO</small></span></div><p className="nav-label">OPERACIÓN</p><nav className="side-nav">{link("dashboard", "Vista general", "⌂")}{link("inventario", "Inventario", "▦")}{link("importar", "Importar Excel", "⇩")}{admin && link("ajustes", "Ajustes físicos", "▤")}</nav>{admin && <><p className="nav-label">ADMINISTRACIÓN</p><nav className="side-nav">{link("usuarios", "Usuarios", "♙")}{link("roles", "Roles y privilegios", "♧")}{link("reportes", "Reportes programados", "◫")}{link("bitacora", "Bitácora", "◷")}</nav></>}<p className="nav-label">CUENTA</p><nav className="side-nav">{link("perfil", "Mi perfil", "◎")}{link("contrasena", "Cambiar contraseña", "⌁")}</nav><div className="sidebar-bottom"><button className="profile-link" type="button" onClick={() => { navigate("perfil"); close(); }}><span className="avatar">{initials(user.nombre)}</span><span><b>{user.nombre}</b><small>{user.rol === "ADMINISTRADOR" ? "Administrador" : "Usuario"}</small></span></button><button className="logout-link" type="button" onClick={logout}>Salir</button></div></aside><button className={`menu-backdrop ${open ? "visible" : ""}`} type="button" onClick={close} aria-label="Cerrar menú" /></>;
+}
 
-function Dashboard() { return <><Header title="¡Hola, Carlos!" subtitle="Aquí tienes un resumen de lo que ocurre hoy en tu inventario." onMenu={() => undefined} /><div className="page-actions"><span className="business-date">Fecha de negocio: 12 de noviembre de 2026</span><button className="button secondary" type="button">↻ Actualizar</button></div><section className="stats-grid"><article className="stat-card danger"><span className="stat-icon">!</span><div><small>PRODUCTOS VENCIDOS</small><strong>24</strong><em>+8.2% <span>vs. mes anterior</span></em></div></article><article className="stat-card warning"><span className="stat-icon">↗</span><div><small>PRÓXIMOS A VENCER</small><strong>18</strong><em>5 esta semana</em></div></article><article className="stat-card neutral"><span className="stat-icon">◌</span><div><small>ESTADO NEUTRO</small><strong>142</strong><em>+12 productos</em></div></article><article className="stat-card success"><span className="stat-icon">✓</span><div><small>INVENTARIO TOTAL</small><strong>1,284</strong><em>98% actualizado</em></div></article></section><section className="content-grid"><article className="panel chart-panel"><div className="panel-heading"><div><h2>Actividad del inventario</h2><p>Resumen de movimientos de los últimos 7 días</p></div><select aria-label="Periodo"><option>Últimos 7 días</option></select></div><div className="chart"><span>1,200</span><div className="bars">{[48, 76, 57, 88, 68, 94, 79].map((height, index) => <div className="bar-wrap" key={index}><div className="bar" style={{ height: `${height}%` }} /><small>{["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"][index]}</small></div>)}</div></div></article><article className="panel list-panel"><div className="panel-heading"><div><h2>Productos destacados</h2><p>Requieren atención</p></div><button className="link-button" type="button">Ver todos →</button></div>{products.slice(0, 3).map((product) => <div className="product-row" key={product[0]}><span className="product-dot" /><div><b>{product[1]}</b><small>{product[0]}</small></div><span className={`badge ${product[2] === "Neutro" ? "green" : product[2] === "Dañado" ? "red" : "yellow"}`}>{product[2]}</span></div>)}</article></section></>; }
+function Header({ screen, user, onMenu }: { screen: Screen; user: PublicUser; onMenu: () => void }) {
+  const meta = pageMeta[screen];
+  return <header className="topbar"><button className="menu-toggle" type="button" onClick={onMenu} aria-label="Abrir menú de navegación">☰</button><div><p className="eyebrow">NEXO / {screen === "dashboard" ? "INICIO" : meta.title.toUpperCase()}</p><h1>{screen === "dashboard" ? `Hola, ${user.nombre.split(" ")[0]} 👋` : meta.title}</h1><p>{meta.description}</p></div><div className="topbar-user"><span className="avatar small">{initials(user.nombre)}</span><span>{user.nombre.split(" ")[0]}</span></div></header>;
+}
 
-function Inventory() { return <><Header title="Inventario" subtitle="Consulta y gestiona los artículos registrados en Nexo." onMenu={() => undefined} /><div className="toolbar"><label className="search">⌕<input placeholder="Buscar artículo o descripción..." /></label><select aria-label="Filtrar estado"><option>Todos los estados</option><option>Pronto a vencer</option><option>Neutro</option></select><button className="button primary" type="button">＋ Nuevo artículo</button></div><article className="panel table-panel"><div className="panel-heading"><div><h2>Artículos registrados</h2><p>1,284 artículos en inventario</p></div><button className="button secondary" type="button">⇩ Importar Excel</button></div><div className="table-scroll"><table><thead><tr>{["Artículo", "Descripción del artículo", "Estado", "On hand", "Saldo", "Trazabilidad", "UOM primaria", "Laboratorio", "Marca", "Política devolución"].map((head) => <th key={head}>{head} ↕</th>)}</tr></thead><tbody>{products.map((product) => <tr key={product[0]}>{product.map((cell, index) => <td key={index}>{index === 2 ? <span className={`badge ${cell === "Neutro" ? "green" : cell === "Dañado" ? "red" : "yellow"}`}>{cell}</span> : cell}</td>)}</tr>)}</tbody></table></div></article></>; }
+function AuthenticatedApp({ initialUser, onLogout }: { initialUser: PublicUser; onLogout: () => void }) {
+  const [user, setUser] = useState(initialUser);
+  const [screen, setScreen] = useState<Screen>(initialUser.debeCambiarPassword ? "contrasena" : "dashboard");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const admin = user.rol === "ADMINISTRADOR";
+  const canNavigate = (next: Screen) => { if (user.debeCambiarPassword && next !== "contrasena") return; if (!admin && ["ajustes", "usuarios", "roles", "reportes", "bitacora"].includes(next)) return; setScreen(next); };
+  function userUpdated(next: PublicUser) { setUser(next); updateStoredUser(next); if (!next.debeCambiarPassword && screen === "contrasena") setScreen("dashboard"); }
+  const content = useMemo(() => {
+    if (screen === "dashboard") return <Dashboard />;
+    if (screen === "inventario") return <Inventory isAdmin={admin} />;
+    if (screen === "importar") return <ImportarExcel />;
+    if (screen === "ajustes") return <AjustesInventario />;
+    if (screen === "usuarios") return <Users />;
+    if (screen === "roles") return <Roles />;
+    if (screen === "reportes") return <Reportes />;
+    if (screen === "bitacora") return <Bitacora />;
+    return <Perfil password={screen === "contrasena"} onUserUpdated={userUpdated} />;
+  }, [screen, admin]);
+  return <div className="app-shell"><Sidebar screen={screen} user={user} navigate={canNavigate} logout={onLogout} open={menuOpen} close={() => setMenuOpen(false)} /><main className="main-content"><Header screen={screen} user={user} onMenu={() => setMenuOpen(true)} />{user.debeCambiarPassword && screen === "contrasena" && <div className="notice warning" role="status">Debes establecer una contraseña personal antes de continuar.</div>}{content}</main></div>;
+}
 
-function Users() { return <><Header title="Usuarios" subtitle="Administra las cuentas y accesos de Nexo." onMenu={() => undefined} /><div className="toolbar"><label className="search">⌕<input placeholder="Buscar por nombre o correo..." /></label><button className="button primary" type="button">＋ Nuevo usuario</button></div><article className="panel table-panel"><div className="panel-heading"><div><h2>Lista de usuarios</h2><p>4 cuentas registradas</p></div></div><table><thead><tr><th>Usuario</th><th>Correo electrónico</th><th>Rol</th><th>Estado</th><th>Último acceso</th><th>Acciones</th></tr></thead><tbody>{[["Carlos Mendoza", "carlos@nexo.bo", "Administrador", "Activo", "Hoy, 08:42"], ["María López", "maria@nexo.bo", "Usuario", "Activo", "Ayer, 16:20"], ["Jorge Flores", "jorge@nexo.bo", "Usuario", "Inactivo", "10 nov, 11:05"]].map((user) => <tr key={user[1]!}><td><span className="user-cell"><span className="avatar light">{user[0]!.split(" ").map((x) => x[0]).join("")}</span><b>{user[0]}</b></span></td><td>{user[1]}</td><td>{user[2]}</td><td><span className={`status-dot ${user[3] === "Activo" ? "on" : "off"}`} />{user[3]}</td><td>{user[4]}</td><td><button className="row-action" type="button">Editar</button></td></tr>)}</tbody></table></article></>; }
-
-function Roles() { return <><Header title="Roles y privilegios" subtitle="Consulta la matriz de permisos de cada rol." onMenu={() => undefined} /><article className="panel table-panel"><div className="panel-heading"><div><h2>Matriz de permisos</h2><p>Permisos definidos para los roles de Nexo</p></div></div><table><thead><tr><th>Módulo</th><th>Acción</th><th>Administrador</th><th>Usuario</th></tr></thead><tbody>{[["Dashboard", "Consultar", "✓", "✓"], ["Inventario", "Consultar", "✓", "✓"], ["Inventario", "Importar Excel", "✓", "✓"], ["Usuarios", "Administrar", "✓", "—"], ["Bitácora", "Consultar", "✓", "—"], ["Ajustes físicos", "Registrar", "✓", "—"]].map((row) => <tr key={row.join("-")}>{row.map((cell, index) => <td key={index} className={index > 1 ? "permission" : ""}>{cell}</td>)}</tr>)}</tbody></table></article></>; }
-
-function Log() { return <><Header title="Bitácora de actividad" subtitle="Revisa las acciones administrativas realizadas en Nexo." onMenu={() => undefined} /><div className="toolbar"><label className="search">⌕<input placeholder="Buscar en la bitácora..." /></label><select aria-label="Filtrar acción"><option>Todas las acciones</option></select><button className="button secondary" type="button">▣ Exportar</button></div><article className="panel table-panel"><div className="panel-heading"><div><h2>Registro de acciones</h2><p>Actividad reciente del sistema</p></div></div><table><thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Acción</th><th>Detalle</th><th>Resultado</th></tr></thead><tbody>{[["12 nov, 08:42", "Carlos Mendoza", "Inicio de sesión", "Acceso al sistema", "Exitoso"], ["11 nov, 16:20", "María López", "Importación", "Productos.xlsx · 128 registros", "Exitoso"], ["11 nov, 15:02", "Carlos Mendoza", "Ajuste físico", "Paracetamol 500 mg · Saldo: 72", "Exitoso"]].map((row) => <tr key={row[0]! + row[1]!}>{row.map((cell, index) => <td key={index}>{index === 4 ? <span className="badge green">{cell}</span> : cell}</td>)}</tr>)}</tbody></table></article></>; }
-
-function Profile({ password = false }: { password?: boolean }) { return <><Header title={password ? "Cambiar contraseña" : "Mi perfil"} subtitle={password ? "Actualiza tu contraseña para mantener tu cuenta segura." : "Consulta y administra tu información personal."} onMenu={() => undefined} /><article className="profile-card panel"><div className="profile-hero"><span className="avatar large">CM</span><div><h2>Carlos Mendoza</h2><p>Administrador · carlos@nexo.bo</p></div></div>{password ? <form className="form-grid"><label>Contraseña actual<input type="password" /></label><label>Nueva contraseña<input type="password" /></label><label>Confirmar nueva contraseña<input type="password" /></label><div><button className="button primary" type="button">Guardar contraseña</button></div></form> : <div className="form-grid"><label>Nombre completo<input defaultValue="Carlos Mendoza" /></label><label>Correo electrónico<input defaultValue="carlos@nexo.bo" /></label><label>Rol<input defaultValue="Administrador" disabled /></label><div><button className="button primary" type="button">Guardar cambios</button></div></div>}</article></>; }
-
-function App() { const [screen, setScreen] = useState<Screen>("dashboard"); const [open, setOpen] = useState(false); const content = screen === "dashboard" ? <><Header title="¡Hola, Carlos!" subtitle="Aquí tienes un resumen de lo que ocurre hoy en tu inventario." onMenu={() => setOpen(true)} /><ConnectedDashboard /></> : screen === "inventario" ? <><Header title="Inventario" subtitle="Consulta y gestiona los artículos registrados en Nexo." onMenu={() => setOpen(true)} /><ConnectedInventory /></> : screen === "usuarios" ? <><Header title="Usuarios" subtitle="Administra las cuentas y accesos de Nexo." onMenu={() => setOpen(true)} /><ConnectedUsers /></> : screen === "roles" ? <><Header title="Roles y privilegios" subtitle="Consulta la matriz de permisos de cada rol." onMenu={() => setOpen(true)} /><ConnectedRoles /></> : screen === "bitacora" ? <><Header title="Bitácora de actividad" subtitle="Revisa las acciones administrativas realizadas en Nexo." onMenu={() => setOpen(true)} /><ConnectedBitacora /></> : <><Header title={screen === "contrasena" ? "Cambiar contraseña" : "Mi perfil"} subtitle={screen === "contrasena" ? "Actualiza tu contraseña para mantener tu cuenta segura." : "Consulta y administra tu información personal."} onMenu={() => setOpen(true)} /><ConnectedPerfil password={screen === "contrasena"} /></>; return <div className={`app-shell ${open ? "menu-open" : ""}`}><Sidebar screen={screen} navigate={(next) => { setScreen(next); setOpen(false); }} /><button className="backdrop" type="button" onClick={() => setOpen(false)} aria-label="Cerrar menú" /><main className="main-content">{content}</main></div>; }
-
-export default App;
+export default function App() {
+  const [user, setUser] = useState<PublicUser | null>(getStoredUser());
+  const [checking, setChecking] = useState(hasSession());
+  useEffect(() => {
+    const expired = () => { clearSession(); setUser(null); };
+    window.addEventListener("nexo:session-expired", expired);
+    if (hasSession()) void obtenerSesion().then((session) => { updateStoredUser(session.usuario); setUser(session.usuario); }).catch(expired).finally(() => setChecking(false));
+    else setChecking(false);
+    return () => window.removeEventListener("nexo:session-expired", expired);
+  }, []);
+  if (checking) return <main className="loading-page"><p role="status">Comprobando sesión...</p></main>;
+  if (!user) return <Login onSuccess={setUser} />;
+  return <AuthenticatedApp initialUser={user} onLogout={() => { void cerrarSesion().finally(() => { clearSession(); setUser(null); }); }} />;
+}

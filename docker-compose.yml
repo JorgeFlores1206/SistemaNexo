@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nexo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nexo
+    ports:
+      - "5432:5432"
+    volumes:
+      - nexo-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  nexo-postgres-data:

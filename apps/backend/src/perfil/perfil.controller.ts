@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Patch, Post, Req, UseGuards } from "@nestjs/common";
+import type { AuthenticatedRequest } from "../common/auth-context";
 import { PerfilGuard } from "./perfil.guard";
 import { PerfilService } from "./perfil.service";
 
@@ -6,7 +7,7 @@ import { PerfilService } from "./perfil.service";
 @UseGuards(PerfilGuard)
 export class PerfilController {
   constructor(private readonly service: PerfilService) {}
-  @Get() obtener(@Req() request: { headers: Record<string, string | undefined> }) { return this.service.obtener(request.headers["x-user-id"]!); }
-  @Patch() actualizar(@Req() request: { headers: Record<string, string | undefined> }, @Body() body: { nombre: string; correo: string }) { return this.service.actualizar(request.headers["x-user-id"]!, body.nombre, body.correo); }
-  @Post("password") cambiarPassword(@Req() request: { headers: Record<string, string | undefined> }, @Body() body: { nueva: string; confirmacion: string }) { return this.service.cambiarPassword(request.headers["x-user-id"]!, body.nueva, body.confirmacion); }
+  @Get() obtener(@Req() request: AuthenticatedRequest) { return this.service.obtener(request.user); }
+  @Patch() actualizar(@Req() request: AuthenticatedRequest, @Body() body: { nombre?: unknown; correo?: unknown }) { return this.service.actualizar(request.user, body.nombre, body.correo); }
+  @Post("password") cambiarPassword(@Req() request: AuthenticatedRequest, @Body() body: { actual?: unknown; nueva?: unknown; confirmacion?: unknown }) { return this.service.cambiarPassword(request.user, body.actual, body.nueva, body.confirmacion, request.sessionId); }
 }

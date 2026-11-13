@@ -1,6 +1,4 @@
 import type { GenerationResult } from "@nexo/contracts";
 
-export function ResumenReporteMensual({ resumen }: { resumen: GenerationResult }) {
-  const mensaje = resumen.estadoGeneracion === "FALLIDO" ? "El reporte no está disponible." : resumen.estadoGeneracion === "VACIO" ? "Reporte generado sin productos." : "Reporte generado correctamente.";
-  return <section aria-label="Resumen del reporte mensual"><h2>Reporte mensual</h2><p>{mensaje}</p><p>Mes: {resumen.mesReferencia} · Productos: {resumen.cantidadIncluida}</p></section>;
-}
+const labels = { GENERADO: "Generado", VACIO: "Sin productos", FALLIDO: "No disponible", EN_PROCESO: "En proceso" };
+export function ResumenReporteMensual({ resumen }: { resumen: GenerationResult }) { return <section className="card report-summary"><div><p className="eyebrow">SOLO ADMINISTRADOR</p><h2>Reporte mensual anticipado</h2><p>Mes de referencia: {resumen.mesReferencia} · fecha de negocio: {resumen.fechaNegocio}</p></div><div className={`report-status ${resumen.estadoGeneracion.toLowerCase()}`}><strong>{labels[resumen.estadoGeneracion]}</strong><span>{resumen.cantidadIncluida} productos incluidos</span></div></section>; }

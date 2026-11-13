@@ -1,11 +1,17 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
+import { SessionService } from "../auth/session.service";
+import type { AuthenticatedRequest } from "../common/auth-context";
 
 @Injectable()
 export class PerfilGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest<{ headers?: Record<string, string | undefined> }>();
-    if (!request.headers?.authorization?.startsWith("Bearer ")) throw new UnauthorizedException();
-    if (!request.headers["x-user-id"]) throw new UnauthorizedException();
+  constructor(private readonly sessions: SessionService) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const session = await this.sessions.authenticate(request.headers.authorization);
+    request.user = session.user;
+    request.sessionId = session.sessionId;
+    if (session.user.debeCambiarPassword && (request.method === "PATCH" || !request.path.endsWith("/password") && request.method === "POST")) throw new ForbiddenException("Debes cambiar tu contraseña antes de continuar");
     return true;
   }
 }
