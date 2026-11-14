@@ -1,9 +1,12 @@
 node_modules/
 dist/
 build/
+release/
 *.log
 .env*
 !.env.example
+nexo.env
+!nexo.env.example
 *.tmp
 *.swp
 .DS_Store

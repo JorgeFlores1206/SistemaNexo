@@ -1,0 +1,56 @@
+{
+  "appId": "com.nexo.desktop",
+  "productName": "Nexo",
+  "directories": {
+    "output": "release"
+  },
+  "asar": false,
+  "files": [
+    "apps/desktop/main.cjs",
+    "apps/desktop/preload.cjs",
+    "apps/desktop/package.json",
+    "apps/backend/dist/**/*",
+    "apps/backend/package.json",
+    "apps/frontend/dist/**/*",
+    "!**/*.ts",
+    "!**/.turbo/**"
+  ],
+  "extraResources": [
+    {
+      "from": "node_modules",
+      "to": "app/node_modules",
+      "filter": [
+        "**/*",
+        "!electron/**",
+        "!electron-builder/**",
+        "!electron-to-chromium/**",
+        "!app-builder-bin/**",
+        "!app-builder-lib/**",
+        "!7zip-bin/**",
+        "!builder-util*/**",
+        "!dmg-*/**",
+        "!typescript/**",
+        "!turbo*/**",
+        "!prettier/**",
+        "!vite/**",
+        "!@vitejs/**",
+        "!@types/**",
+        "!.bin/**",
+        "!**/*.md",
+        "!**/*.map",
+        "!**/*.ts",
+        "!**/test/**",
+        "!**/tests/**"
+      ]
+    }
+  ],
+  "extraMetadata": {
+    "main": "apps/desktop/main.cjs"
+  },
+  "win": {
+    "target": "portable"
+  },
+  "portable": {
+    "artifactName": "Nexo-${version}-portable.exe"
+  }
+}
