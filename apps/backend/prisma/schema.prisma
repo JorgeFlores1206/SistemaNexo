@@ -1,12 +1,10 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["multiSchema"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  schemas   = ["nexo"]
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 enum EstadoGeneracionReporte {
@@ -14,15 +12,11 @@ enum EstadoGeneracionReporte {
   GENERADO
   VACIO
   FALLIDO
-
-  @@schema("nexo")
 }
 
 enum RolUsuario {
   ADMINISTRADOR
   USUARIO
-
-  @@schema("nexo")
 }
 
 model Usuario {
@@ -40,8 +34,6 @@ model Usuario {
   ajustes     AjusteInventario[]
 
   @@index([activo, rol])
-
-  @@schema("nexo")
 }
 
 model Sesion {
@@ -55,8 +47,6 @@ model Sesion {
 
   @@index([usuarioId, revocadaEn])
   @@index([expiraEn])
-
-  @@schema("nexo")
 }
 
 model BitacoraEvento {
@@ -70,8 +60,6 @@ model BitacoraEvento {
 
   @@index([fecha])
   @@index([accion])
-
-  @@schema("nexo")
 }
 
 model Producto {
@@ -95,8 +83,6 @@ model Producto {
   ajustes            AjusteInventario[]
   creadoEn           DateTime @default(now())
   actualizadoEn      DateTime @updatedAt
-
-  @@schema("nexo")
 }
 
 model AjusteInventario {
@@ -112,8 +98,6 @@ model AjusteInventario {
 
   @@index([productoId, fecha])
   @@index([actorId, fecha])
-
-  @@schema("nexo")
 }
 
 model ReporteMensualVencimientos {
@@ -129,8 +113,6 @@ model ReporteMensualVencimientos {
   bitacora           BitacoraReporteMensual[]
 
   @@index([estadoGeneracion])
-
-  @@schema("nexo")
 }
 
 model ProductoProximoAVencer {
@@ -151,8 +133,6 @@ model ProductoProximoAVencer {
 
   @@unique([reporteId, productoId])
   @@index([reporteId])
-
-  @@schema("nexo")
 }
 
 model BitacoraReporteMensual {
@@ -166,6 +146,4 @@ model BitacoraReporteMensual {
   reporte          ReporteMensualVencimientos @relation(fields: [reporteId], references: [id], onDelete: Cascade)
 
   @@index([mesReferencia, creadoEn])
-
-  @@schema("nexo")
 }

@@ -85,8 +85,12 @@ export class InventarioService {
       const payload = this.validarPayload(body, true);
       const existente = await this.prisma.producto.findUnique({ where: { codigo: payload.codigo } });
       if (existente) throw new ConflictException("El código de artículo ya existe");
-      const regla = calcularRegla({ ...payload, politicaDevolucion: payload.politicaDevolucion ?? null, vencimientoOriginal: payload.vencimientoOriginal ?? null, codigo: payload.codigo, nombre: payload.nombre ?? "", danado: payload.danado ?? false, onHand: payload.onHand ?? 0, saldo: payload.saldo ?? 0 }, new Date());
-      const producto = await this.prisma.producto.create({ data: { ...payload, nombre: payload.nombre ?? "", fechaEfectiva: regla.fechaEfectiva, estadoCalculado: regla.estadoCalculado } });
+      const onHand = payload.onHand ?? 0;
+      const saldo = payload.saldo ?? 0;
+      const diferencia = saldo - onHand;
+      const arqueo = diferencia > 0 ? `Sobrante: +${diferencia}` : diferencia < 0 ? `Faltante: ${diferencia}` : "Exacto";
+      const regla = calcularRegla({ ...payload, politicaDevolucion: payload.politicaDevolucion ?? null, vencimientoOriginal: payload.vencimientoOriginal ?? null, codigo: payload.codigo, nombre: payload.nombre ?? "", danado: payload.danado ?? false, onHand, saldo }, new Date());
+      const producto = await this.prisma.producto.create({ data: { ...payload, nombre: payload.nombre ?? "", onHand, saldo, arqueo, fechaEfectiva: regla.fechaEfectiva, estadoCalculado: regla.estadoCalculado } });
       productoId = producto.id;
       await this.registrar(user, "Creación de producto", `Artículo ${producto.codigo}`, "Exitoso", producto.id);
       return { producto: this.serializar(producto, fechaSolo(new Date())) };
@@ -102,9 +106,14 @@ export class InventarioService {
     if (!actual) throw new NotFoundException("Artículo no encontrado");
     const version = this.optionalInteger(body.version, "version");
     if (version !== null && version !== actual.version) throw new ConflictException("El artículo cambió; actualiza la pantalla e inténtalo otra vez");
-    const payload = this.validarPayload({ ...body, codigo: body.codigo ?? actual.codigo }, false);
-    const regla = calcularRegla({ ...actual, ...payload, codigo: payload.codigo, nombre: payload.nombre ?? actual.nombre }, new Date());
-    const resultado = await this.prisma.producto.updateMany({ where: { id, version: actual.version }, data: { ...payload, fechaEfectiva: regla.fechaEfectiva, estadoCalculado: regla.estadoCalculado, version: { increment: 1 } } });
+    // On hand no debe modificarse en actualizaciones manuales; se mantiene el actual
+    const payload = this.validarPayload({ ...body, codigo: body.codigo ?? actual.codigo, onHand: actual.onHand }, false);
+    const onHand = actual.onHand ?? 0;
+    const saldo = payload.saldo !== undefined && payload.saldo !== null ? payload.saldo : (actual.saldo ?? 0);
+    const diferencia = saldo - onHand;
+    const arqueo = diferencia > 0 ? `Sobrante: +${diferencia}` : diferencia < 0 ? `Faltante: ${diferencia}` : "Exacto";
+    const regla = calcularRegla({ ...actual, ...payload, codigo: payload.codigo, nombre: payload.nombre ?? actual.nombre, onHand, saldo }, new Date());
+    const resultado = await this.prisma.producto.updateMany({ where: { id, version: actual.version }, data: { ...payload, onHand, saldo, arqueo, fechaEfectiva: regla.fechaEfectiva, estadoCalculado: regla.estadoCalculado, version: { increment: 1 } } });
     if (resultado.count !== 1) throw new ConflictException("El artículo cambió; actualiza la pantalla e inténtalo otra vez");
     const actualizado = await this.prisma.producto.findUniqueOrThrow({ where: { id } });
     await this.registrar(user, "Actualización de producto", `Artículo ${actualizado.codigo}`, "Exitoso", id);
@@ -120,11 +129,14 @@ export class InventarioService {
     if (!producto) throw new NotFoundException("Artículo no encontrado");
     if (version !== null && version !== producto.version) throw new ConflictException("El artículo cambió; actualiza la pantalla e inténtalo otra vez");
     const anterior = producto.saldo ?? 0;
+    const onHand = producto.onHand ?? 0;
+    const diferencia = saldoNuevo - onHand;
+    const arqueo = diferencia > 0 ? `Sobrante: +${diferencia}` : diferencia < 0 ? `Faltante: ${diferencia}` : "Exacto";
     const ajuste = await this.prisma.$transaction(async (tx) => {
-      const updated = await tx.producto.updateMany({ where: { id, version: producto.version }, data: { saldo: saldoNuevo, version: { increment: 1 } } });
+      const updated = await tx.producto.updateMany({ where: { id, version: producto.version }, data: { saldo: saldoNuevo, arqueo, version: { increment: 1 } } });
       if (updated.count !== 1) throw new ConflictException("El artículo cambió; el ajuste no se aplicó");
       const registro = await tx.ajusteInventario.create({ data: { productoId: id, actorId: user.id, saldoAnterior: anterior, saldoNuevo, motivo } });
-      await tx.bitacoraEvento.create({ data: { actor: user.nombre, accion: "Ajuste físico", detalle: `${producto.codigo}: saldo ${anterior} a ${saldoNuevo}. ${motivo}`, resultado: "Exitoso", cuentaAfectada: user.id } });
+      await tx.bitacoraEvento.create({ data: { actor: user.nombre, accion: "Ajuste físico", detalle: `${producto.codigo}: saldo ${anterior} a ${saldoNuevo} (Arqueo: ${arqueo}). ${motivo}`, resultado: "Exitoso", cuentaAfectada: user.id } });
       return registro;
     });
     return { ajuste: { id: ajuste.id, productoId: id, codigo: producto.codigo, nombre: producto.nombre, saldoAnterior: anterior, saldoNuevo, motivo, fecha: ajuste.fecha.toISOString(), actor: user.nombre }, producto: await this.obtener(id, user).then((value) => value.producto) };
@@ -201,11 +213,15 @@ export class InventarioService {
       try {
         const actual = await this.prisma.producto.findUnique({ where: { codigo: row.codigo } });
         const base = actual ?? { vencimientoOriginal: null, danado: false };
-        const regla = calcularRegla({ ...base, ...row, codigo: row.codigo, nombre: row.nombre, onHand: row.onHand ?? 0, saldo: row.saldo ?? 0 }, new Date());
+        const onHand = row.onHand ?? 0;
+        const saldo = row.saldo ?? 0;
+        const diferencia = saldo - onHand;
+        const arqueo = diferencia > 0 ? `Sobrante: +${diferencia}` : diferencia < 0 ? `Faltante: ${diferencia}` : "Exacto";
+        const regla = calcularRegla({ ...base, ...row, codigo: row.codigo, nombre: row.nombre, onHand, saldo }, new Date());
         if (actual) {
-          await this.prisma.producto.update({ where: { id: actual.id }, data: { nombre: row.nombre, ...(row.onHand !== undefined ? { onHand: row.onHand } : {}), saldo: row.saldo, arqueo: row.arqueo, uomPrimaria: row.uomPrimaria, laboratorio: row.laboratorio, marca: row.marca, politicaDevolucion: row.politicaDevolucion, fechaEfectiva: regla.fechaEfectiva, estadoCalculado: regla.estadoCalculado, version: { increment: 1 } } });
+          await this.prisma.producto.update({ where: { id: actual.id }, data: { nombre: row.nombre, ...(row.onHand !== undefined ? { onHand: row.onHand } : {}), saldo: row.saldo, arqueo, uomPrimaria: row.uomPrimaria, laboratorio: row.laboratorio, marca: row.marca, politicaDevolucion: row.politicaDevolucion, fechaEfectiva: regla.fechaEfectiva, estadoCalculado: regla.estadoCalculado, version: { increment: 1 } } });
         } else {
-          await this.prisma.producto.create({ data: { codigo: row.codigo, nombre: row.nombre, onHand: row.onHand ?? null, saldo: row.saldo, arqueo: row.arqueo, uomPrimaria: row.uomPrimaria, laboratorio: row.laboratorio, marca: row.marca, politicaDevolucion: row.politicaDevolucion, danado: false, fechaEfectiva: regla.fechaEfectiva, estadoCalculado: regla.estadoCalculado } });
+          await this.prisma.producto.create({ data: { codigo: row.codigo, nombre: row.nombre, onHand: row.onHand ?? null, saldo: row.saldo, arqueo, uomPrimaria: row.uomPrimaria, laboratorio: row.laboratorio, marca: row.marca, politicaDevolucion: row.politicaDevolucion, danado: false, fechaEfectiva: regla.fechaEfectiva, estadoCalculado: regla.estadoCalculado } });
         }
         importadas += 1;
       } catch (error) {
